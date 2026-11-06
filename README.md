@@ -1,6 +1,6 @@
 <div align="center">
 
-<h1>📝 Essay Grader</h1>
+<h1<img src="public/favicon.svg" width="40" height="40" alt="Logo" style="vertical-align: middle;"> Essay Grader</h1>
 
 <p><b>Penilai Esai Otomatis</b><br>
 Nilai jawaban esai dari <b>Google Form</b> secara otomatis dengan bantuan AI,<br>
