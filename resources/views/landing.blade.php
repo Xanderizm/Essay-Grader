@@ -540,7 +540,7 @@
 <section id="cara-kerja" class="hiw" data-s="0" aria-labelledby="hiw-judul">
     <div class="sec-head">
         <h2 class="tag" id="hiw-judul">Cara kerja</h2>
-        <p>Satu lembar dokumen menempuh enam stasiun, dari link Form sampai rekap Excel. Tidak ada yang perlu diubah di Google Form Anda.</p>
+        <p>Biarkan sistem bekerja otomatis.</p>
     </div>
 
     <div class="hiw-stage" data-hiw>
@@ -828,14 +828,14 @@
         arch({ dir: 'x', a: 74, h: 96, t: 24, c: '#fff', along: 44 }) +
         bb({ x: 0, y: 0, z: 120, w: 230, h: 150, html: '<svg viewBox="0 0 230 150">' + gearSVG(92, 80, 62, 50, 12, '', '#c4f55d') + '<g transform="translate(168 40)">' + gearSVG(0, 0, 38, 30, 9, 'rev', '#fff') + '</g></svg>' }) +
         bb({ x: -120, y: 116, z: 0, w: 124, h: 170, html: robotBobi() }) +
-        bb({ x: 94, y: -108, z: 0, w: 224, h: 92, cls: 'bb-dark bb-card bb-mono', html: '<span style="color:#c4f55d">$</span> php artisan<br>schedule:work<span class="caret"></span><br><small style="opacity:.6">menarik jawaban tiap 1 menit</small>' }));
+        bb({ x: 50, y: 165, z: 0, w: 224, h: 92, cls: 'bb-dark bb-card bb-mono', html: '<span style="color:#c4f55d">$</span> php artisan<br>schedule:work<span class="caret"></span><br><small style="opacity:.6">menarik jawaban tiap 1 menit</small>' }));
 
     /* 4. Pemindai AI: gerbang laser lime */
     h += station(3, 380, 380, 0, 0,
         arch({ dir: 'y', a: 96, h: 124, t: 24, c: '#fff', along: 70 }) +
         '<div class="o3 laser" style="left:0;top:0">' + box({ x: -96, y: -3, w: 192, d: 6, h: 110, c: '#c4f55d', z: 0 }) + '</div>' +
         bb({ x: -175, y: -105, z: 0, w: 168, h: 90, cls: 'bb-card', html: '<small style="color:#1b1b1b;opacity:1;font-weight:700">KATA KUNCI</small><div style="margin-top:4px"><span class="chip hl">fotosintesis</span><span class="chip">klorofil</span><span class="chip hl">makna&nbsp;&#10003;</span></div>' }) +
-        bb({ x: 150, y: -150, z: 0, w: 168, h: 92, cls: 'bb-card', html: '<b>Relevansi rubrik</b><div class="meter"><i></i></div><small style="opacity:1;font-weight:700">92% cocok</small>' }));
+        bb({ x: -170, y: 120, z: 0, w: 168, h: 92, cls: 'bb-card', html: '<b>Relevansi rubrik</b><div class="meter"><i></i></div><small style="opacity:1;font-weight:700">92% cocok</small>' }));
 
     /* 5. Review manual: mesin keluaran skor + tabel interaktif + pengajar */
     h += station(4, 400, 380, 0, 0,
