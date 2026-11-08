@@ -108,7 +108,7 @@ class ProcessEssayGrading implements ShouldQueue, ShouldBeUniqueUntilProcessing
                 ->update(['processing_status' => 'pending']);
 
             $first = StudentAnswer::where('processing_status', 'pending')
-                ->whereHas('question', fn ($q) => $q->scoring())
+                ->whereHas('question', fn ($q) => $q->scoring()->whereHas('exam', fn ($e) => $e->where('status', 'active')))
                 ->orderBy('id')
                 ->lockForUpdate()
                 ->first();
@@ -166,7 +166,7 @@ class ProcessEssayGrading implements ShouldQueue, ShouldBeUniqueUntilProcessing
     /** Jadwalkan batch berikutnya hanya kalau masih ada jawaban pending. */
     private function scheduleNext(int $delaySeconds): void
     {
-        if (StudentAnswer::where('processing_status', 'pending')->whereHas('question', fn ($q) => $q->scoring())->exists()) {
+        if (StudentAnswer::where('processing_status', 'pending')->whereHas('question', fn ($q) => $q->scoring()->whereHas('exam', fn ($e) => $e->where('status', 'active')))->exists()) {
             self::dispatch()->delay(now()->addSeconds($delaySeconds));
         }
     }

@@ -21,6 +21,10 @@
     @media (max-width: 820px) {
         .exam-grid, .empty { grid-template-columns: 1fr; }
         .empty-laptop { max-width: 180px; margin: 0 auto; }
+        .sec-head { flex-direction: column; align-items: stretch; gap: 12px; }
+        .sec-head .btn { width: 100%; text-align: center; min-height: 44px; }
+        .exam-card .row-actions { flex-direction: column; }
+        .exam-card .row-actions .btn { width: 100%; text-align: center; min-height: 44px; }
     }
 </style>
 @endpush

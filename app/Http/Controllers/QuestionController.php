@@ -12,6 +12,10 @@ class QuestionController extends Controller
     {
         $this->authorizeQuestion($question);
 
+        if ($question->exam->status === 'active') {
+            return back()->withErrors(['status' => 'Perubahan rubrik tidak dapat disimpan saat penilaian aktif. Tutup status penilaian terlebih dahulu sebelum melakukan perubahan.']);
+        }
+
         $data = $request->validate([
             'answer_key'   => 'nullable|string|max:5000',
             'grading_mode' => 'required|in:scoring,non_scoring',

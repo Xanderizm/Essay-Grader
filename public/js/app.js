@@ -73,19 +73,28 @@
             }
             d.addEventListener("close", function once() {
                 d.removeEventListener("close", once);
-                resolve(result);
+                resolve(isAlert ? true : result);
             });
             d.showModal();
         });
     }
 
     window.ask = ask;
-    window.alert = function (msg) {
+    window.alert = function (msg, title) {
         return ask({
-            title: "Pemberitahuan",
+            title: title || "Pemberitahuan",
             text: String(msg),
             okLabel: "Mengerti",
             cancelLabel: false,
+            tone: "warning"
+        });
+    };
+    window.confirm = function (msg, title) {
+        return ask({
+            title: title || "Konfirmasi",
+            text: String(msg),
+            okLabel: "Lanjutkan",
+            cancelLabel: "Batal",
             tone: "warning"
         });
     };
@@ -115,30 +124,35 @@
         });
     });
 
-    /* ---------- Konfirmasi keluar saat ada penilaian aktif ---------- */
-    var logoutForm = $("#logout-form");
-    if (logoutForm) {
-        logoutForm.addEventListener("submit", function (e) {
-            if (logoutForm.getAttribute("data-confirmed") === "1") {
-                return;
-            }
-            if (logoutForm.getAttribute("data-has-active") === "1") {
-                e.preventDefault();
-                ask({
-                    title: "Penilaian Sedang Aktif",
-                    text: "Penilaian yang sedang berjalan akan otomatis ditutup jika Anda keluar akun. Lanjutkan keluar?",
-                    okLabel: "Tutup & Keluar",
-                    cancelLabel: "Batalkan",
-                    tone: "warning",
-                }).then(function (yes) {
-                    if (yes) {
-                        logoutForm.setAttribute("data-confirmed", "1");
-                        logoutForm.submit();
-                    }
-                });
-            }
-        });
-    }
+    /* ---------- Konfirmasi keluar saat ada penilaian aktif (desktop & mobile) ---------- */
+    document.addEventListener("submit", function (e) {
+        var form = e.target;
+        if (!form) {
+            return;
+        }
+        var isLogout = form.id === "logout-form" || (form.classList && form.classList.contains("logout-form")) || (form.action && form.action.indexOf("/logout") !== -1);
+        if (!isLogout) {
+            return;
+        }
+        if (form.getAttribute("data-confirmed") === "1") {
+            return;
+        }
+        if (form.getAttribute("data-has-active") === "1") {
+            e.preventDefault();
+            ask({
+                title: "Penilaian Sedang Aktif",
+                text: "Ada proses penilaian yang sedang berjalan aktif. Jika Anda keluar akun, seluruh penilaian aktif akan otomatis dihentikan/ditutup. Lanjutkan keluar akun?",
+                okLabel: "Hentikan & Keluar",
+                cancelLabel: "Batal",
+                tone: "warning",
+            }).then(function (yes) {
+                if (yes) {
+                    form.setAttribute("data-confirmed", "1");
+                    form.submit();
+                }
+            });
+        }
+    });
 
     /* ---------- Dialog umum: tombol [data-close] dan klik di luar kotak = tutup ---------- */
     document.addEventListener("click", function (e) {
@@ -1104,14 +1118,18 @@
                     });
             }
 
+            var warningShown = false;
             function warnActiveEdit() {
+                if (warningShown) return;
+                warningShown = true;
                 ask({
                     title: "Penilaian Sedang Aktif",
-                    text: "Struktur form dan rubrik tidak dapat diubah saat penilaian sedang aktif. Tutup penilaian terlebih dahulu jika ingin melakukan perubahan.",
-                    okLabel: "Tutup penilaian",
-                    cancelLabel: "Batalkan",
+                    text: "Struktur formulir dan rubrik penilaian tidak dapat diubah selama status penilaian masih aktif.\n\nTutup status penilaian terlebih dahulu sebelum melakukan perubahan.",
+                    okLabel: "Tutup Penilaian",
+                    cancelLabel: "Batal",
                     tone: "warning",
                 }).then(function (yes) {
+                    warningShown = false;
                     if (yes && closeForm) {
                         leaving = true;
                         closeForm.submit();
@@ -1123,31 +1141,42 @@
                 });
             }
 
-            fields.forEach(function (el) {
-                el.addEventListener("input", function (e) {
-                    if (examActive) {
+            if (examActive) {
+                fields.forEach(function (el) {
+                    el.addEventListener("mousedown", function (e) {
+                        e.preventDefault();
+                        el.blur();
+                        warnActiveEdit();
+                    });
+                    el.addEventListener("keydown", function (e) {
+                        e.preventDefault();
+                        el.blur();
+                        warnActiveEdit();
+                    });
+                    el.addEventListener("focus", function (e) {
+                        el.blur();
+                        warnActiveEdit();
+                    });
+                    el.addEventListener("input", function (e) {
                         e.preventDefault();
                         warnActiveEdit();
-                        return;
-                    }
-                    refresh();
-                });
-                el.addEventListener("change", function (e) {
-                    if (examActive) {
+                    });
+                    el.addEventListener("change", function (e) {
                         e.preventDefault();
                         warnActiveEdit();
-                        return;
-                    }
-                    refresh();
+                    });
                 });
-            });
-            modes().forEach(function (s) {
-                s.addEventListener("change", function () {
-                    if (!examActive) {
+            } else {
+                fields.forEach(function (el) {
+                    el.addEventListener("input", refresh);
+                    el.addEventListener("change", refresh);
+                });
+                modes().forEach(function (s) {
+                    s.addEventListener("change", function () {
                         syncMode(s);
-                    }
+                    });
                 });
-            });
+            }
             form.addEventListener("submit", function (e) {
                 e.preventDefault();
                 if (examActive) {
@@ -1164,28 +1193,38 @@
                         return;
                     }
                     e.preventDefault();
+                    var closeAndReanalyzeInput = $("#close-and-reanalyze");
+
                     if (examActive) {
                         ask({
                             title: "Penilaian Sedang Aktif",
-                            text: "Analisis ulang hanya dapat dilakukan saat penilaian sedang tidak aktif. Tutup penilaian terlebih dahulu jika ingin melakukan analisis ulang.",
-                            okLabel: "Tutup penilaian",
-                            cancelLabel: "Batalkan",
+                            text: "Fitur Analisis Ulang hanya dapat dijalankan saat status penilaian tidak aktif.\n\nHentikan/tutup penilaian aktif sekarang dan lanjutkan analisis ulang formulir?",
+                            okLabel: "Tutup Penilaian",
+                            cancelLabel: "Batal",
                             tone: "warning",
                         }).then(function (yes) {
-                            if (yes && closeForm) {
+                            if (yes) {
+                                if (closeAndReanalyzeInput) {
+                                    closeAndReanalyzeInput.value = "1";
+                                }
                                 leaving = true;
-                                closeForm.submit();
+                                reanalyzeForm.setAttribute("data-confirmed", "1");
+                                reanalyzeForm.submit();
                             }
                         });
                     } else {
                         ask({
                             title: "Analisis Ulang Formulir",
-                            text: "Peran kolom akan diatur ulang otomatis dan perubahan manual Anda akan hilang. Rubrik tetap aman. Lanjutkan?",
+                            text: "Peran kolom akan diatur ulang otomatis dari Google Form. Rubrik yang sudah Anda isi tetap aman. Lanjutkan analisis ulang?",
                             okLabel: "Lanjutkan",
-                            cancelLabel: "Batalkan",
+                            cancelLabel: "Batal",
                             tone: "warning",
                         }).then(function (yes) {
                             if (yes) {
+                                if (closeAndReanalyzeInput) {
+                                    closeAndReanalyzeInput.value = "0";
+                                }
+                                leaving = true;
                                 reanalyzeForm.setAttribute("data-confirmed", "1");
                                 reanalyzeForm.submit();
                             }

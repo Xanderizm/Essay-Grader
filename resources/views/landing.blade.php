@@ -30,7 +30,7 @@
     .page-bg { position: absolute; inset: 0 -36px; z-index: -1; pointer-events: none;
         -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 260px, #000 calc(100% - 180px), transparent 100%);
                 mask-image: linear-gradient(to bottom, transparent 0, #000 260px, #000 calc(100% - 180px), transparent 100%); }
-    .page-bg canvas { position: sticky; top: 0; display: block; width: 100%; height: 100vh; height: 100svh; opacity: .8; }
+    .page-bg canvas { position: absolute; inset: 0; display: block; width: 100%; height: 100%; opacity: .8; }
     .page-bg.no-gl { background:
         radial-gradient(40% 30% at 18% 18%, color-mix(in srgb, var(--lime) 20%, transparent), transparent 70%),
         radial-gradient(45% 30% at 82% 50%, color-mix(in srgb, var(--sky) 40%, transparent), transparent 70%),
@@ -436,6 +436,36 @@
         .spec:hover::after { animation: none; }
         .sw, .sw.is-drop { transition: none; }
     }
+    /* ... kode lama */
+
+    /* =========================================================
+       Mikrodinamika: melayang, hover, kedalaman saat digulir
+       (hanya desktop dengan kursor; mati di layar sentuh/mobile dan saat reduced-motion)
+       ========================================================= */
+    .hero > .hm { animation: hm-float 7s ease-in-out infinite; will-change: translate; }
+    @keyframes hm-float { 50% { translate: 0 -10px; } }
+
+    .sw { transition: transform .8s cubic-bezier(.5, 0, .2, 1), opacity .5s ease, translate .3s ease, filter .3s ease; }
+    .sw-no { transition: scale .3s ease, rotate .3s ease; }
+    .logo { transition: color .25s, scale .3s cubic-bezier(.3, 1.4, .5, 1); }
+    .hiw-seg b { display: inline-block; transition: scale .3s cubic-bezier(.3, 1.4, .5, 1); }
+    .scale .badge { transition: scale .3s ease; }
+
+    @media (hover: hover) and (pointer: fine) {
+        .sw:hover, .sw:focus-visible { translate: 0 -6px; filter: drop-shadow(0 12px 22px color-mix(in srgb, var(--lime) 38%, transparent)); }
+        .sw-lime:hover, .sw-lime:focus-visible { filter: drop-shadow(0 12px 22px rgba(27, 27, 27, .22)); }
+        .sw:hover .sw-no, .sw:focus-visible .sw-no { scale: 1.15; rotate: -8deg; }
+        .logo:hover { scale: 1.07; }
+        .hiw-seg:hover b, .hiw-seg:focus-visible b { scale: 1.2; }
+        .scale .badge:hover { scale: 1.08; }
+    }
+    @media (max-width: 820px), (pointer: coarse) {
+        .hero .art, .hero > .hm { animation: none; will-change: auto; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+        .hero .art, .hero > .hm { animation: none; }
+        .sw, .sw-no, .logo, .hiw-seg b, .scale .badge { transition: none; }
+    }
 </style>
 @endpush
 
@@ -636,6 +666,7 @@
     var segs = [].slice.call(stage.querySelectorAll('.hiw-seg'));
     var fills = segs.map(function (s) { return s.querySelector('i'); });
     var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    function egSignal() { return window.egSignal ? window.egSignal() : undefined; }
     var N = 6;
     sec.classList.add('is-js');
 
@@ -899,6 +930,9 @@
     if ((navigator.hardwareConcurrency || 8) <= 4 || (navigator.deviceMemory || 8) <= 4) { goLite(); }
     var cur = 0, idx = 0, arrive = performance.now(), dragT0 = performance.now();
     var visible = true;
+    /* Autoplay (progress durasi + pindah tahap) baru mulai dari tahap 1 saat bagian "Cara kerja"
+       sudah tampil pas di layar; keluar dari layar = jeda, masuk lagi = lanjut dari posisi terakhir. */
+    var started = false, active = false, frozen = 0;
     /* Lama tiap tahap = estimasi waktu baca teks tahap itu (judul + deskripsi + kartu, sekitar 11 kata/detik)
        + bonus untuk visual yang lebih ramai; dibatasi 2 - 3,4 detik. Perjalanan kamera sudah termasuk di dalamnya. */
     var VISUAL_MS = [150, 250, 400, 450, 350, 400];
@@ -918,9 +952,9 @@
         /* lembar utama mengikuti kamera; saat tahap 1 ia ditarik kursor ke titik awal */
         var off = 0, lift = 0, curOn = false;
         if (cur < .2) {
-            var k = reduce ? 1 : clamp((now - dragT0 - 350) / 1700, 0, 1);
+            var k = reduce ? 1 : (started ? clamp((now - dragT0 - 350) / 1700, 0, 1) : 0);
             off = -(1 - easeOut(k)) * 300; lift = (1 - easeOut(k)) * 64;
-            curOn = k < 1 || (now - dragT0 - 350 - 1700) < 700;
+            curOn = started && (k < 1 || (now - dragT0 - 350 - 1700) < 700);
         }
         var q = at(c.L + off), t = now / 1000;
         var hz = 52 + lift + Math.sin(t * 2) * 2.2;
@@ -969,8 +1003,12 @@
     }
     var autoOn = !reduce, userUntil = 0, tween = null, quiet = 0, touching = false, dragging = false, snapTimer = 0;
     function progress(now) {
-        var auto = autoOn && now > userUntil && !tween && !touching && !dragging;
-        var f = auto ? clamp((now - arrive) / DW[idx], 0, 1) : 1;
+        var auto = autoOn && active && now > userUntil && !tween && !touching && !dragging;
+        var f;
+        if (!started) { f = 0; }                                               // belum dimulai: bar kosong
+        else if (auto) { f = clamp((now - arrive) / DW[idx], 0, 1); }
+        else if (autoOn && !active) { f = clamp(frozen / DW[idx], 0, 1); }     // di luar layar: bar berhenti
+        else { f = 1; }
         for (var n = 0; n < N; n++) {
             fills[n].style.transform = 'scaleX(' + (n < idx ? 1 : n === idx ? f : 0).toFixed(3) + ')';
         }
@@ -981,10 +1019,12 @@
         tweenTo(n * W, 650);
     }
     function userTouch() {
+        started = true;
         userUntil = performance.now() + 9000;
         if (hint) { hint.classList.add('gone'); }
     }
     function loop(now) {
+        if (!sec.isConnected) { return; }   // halaman sudah diganti Turbo: hentikan loop
         if (visible && !document.hidden) {
             var W = scroller.clientWidth || 1;
             if (tween) {
@@ -999,7 +1039,7 @@
             var dt = now - lastT; lastT = now;
             if (dt > 34 && dt < 250) { if (++slow > 45) { goLite(); } } else if (slow > 0) { slow -= .5; }
             setIdx(clamp(Math.round(scroller.scrollLeft / W), 0, N - 1));
-            if (autoOn && now > userUntil && !tween && !touching && !dragging && now - arrive > DW[idx]) {
+            if (autoOn && active && now > userUntil && !tween && !touching && !dragging && now - arrive > DW[idx]) {
                 tweenTo(idx >= N - 1 ? 0 : (idx + 1) * W, idx >= N - 1 ? 1800 : 1200);
             }
             progress(now);
@@ -1057,17 +1097,29 @@
         scroller.scrollLeft = scroller.scrollLeft / oldW * nW; lastW = nW;
         layout();
     }
-    window.addEventListener('resize', onResize);
+    window.addEventListener('resize', onResize, { signal: egSignal() });
     layout();
 
     if ('IntersectionObserver' in window) {
+        var thr = []; for (var q = 0; q <= 20; q++) { thr.push(q / 20); }
         new IntersectionObserver(function (en) {
-            visible = en[0].isIntersecting;
+            var e = en[en.length - 1], now = performance.now();
+            visible = e.isIntersecting;
             sec.classList.toggle('is-paused', !visible);
-            if (visible) { arrive = performance.now(); }
-        }, { threshold: 0 }).observe(stage);
+            /* "tampil pas": minimal 60% tahap kelihatan (atau 60% tinggi layar bila tahap lebih tinggi dari layar) */
+            var rb = e.rootBounds ? e.rootBounds.height : window.innerHeight;
+            var on = visible && e.intersectionRect.height >= Math.min(e.boundingClientRect.height, rb) * .6;
+            if (on === active) { return; }
+            active = on;
+            if (on) {
+                if (!started) { started = true; arrive = now; dragT0 = now; }   // pertama kali: mulai dari tahap 1
+                else { arrive = now - frozen; }                                  // lanjut dari posisi terakhir
+            } else if (started) {
+                frozen = now - arrive;
+            }
+        }, { threshold: thr }).observe(stage);
     }
-    document.addEventListener('visibilitychange', function () { sec.classList.toggle('is-paused', document.hidden); if (!document.hidden) { arrive = performance.now(); } });
+    document.addEventListener('visibilitychange', function () { sec.classList.toggle('is-paused', document.hidden); }, { signal: egSignal() });
     steps.forEach(function (s, n) { s.setAttribute('aria-hidden', n === 0 ? 'false' : 'true'); });
     requestAnimationFrame(loop);
 })();
@@ -1124,6 +1176,7 @@
     'use strict';
     var root = document.documentElement;
     var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    function egSignal() { return window.egSignal ? window.egSignal() : undefined; }
     var $ = function (s, r) { return (r || document).querySelector(s); };
     var $$ = function (s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); };
 
@@ -1201,7 +1254,7 @@
         stack.addEventListener('pointerleave', function () { hovering = false; schedule(); });
         stack.addEventListener('focusin', function () { focused = true; schedule(); });
         stack.addEventListener('focusout', function () { focused = false; schedule(); });
-        document.addEventListener('visibilitychange', schedule);
+        document.addEventListener('visibilitychange', schedule, { signal: egSignal() });
         if ('IntersectionObserver' in window) {
             new IntersectionObserver(function (en) { visible = en[0].isIntersecting; schedule(); }).observe(stack);
         }
@@ -1221,14 +1274,14 @@
         var vsrc = 'attribute vec2 p; varying vec2 vUv; void main(){ vUv = p * .5 + .5; gl_Position = vec4(p, 0., 1.); }';
         var fsrc = [
             '#ifdef GL_FRAGMENT_PRECISION_HIGH', 'precision highp float;', '#else', 'precision mediump float;', '#endif',
-            'varying vec2 vUv; uniform float uTime; uniform vec2 uRes; uniform vec2 uMouse; uniform float uDark;',
+            'varying vec2 vUv; uniform float uTime; uniform vec2 uSize; uniform vec2 uMouse; uniform vec2 uMF; uniform float uDark;',
             'void main(){',
-            '  vec2 asp = vec2(uRes.x / uRes.y, 1.);',
-            '  float dm = distance(vUv * asp, uMouse * asp);',
+            '  vec2 p = vUv * uSize;',
+            '  float dm = distance(p, uMouse);',
             '  float m = exp(-dm * dm * 9.);',
-            '  vec2 uv = vUv * asp * 1.1;',
-            '  uv += (uMouse - .5) * .38;',
-            '  uv += (vUv - uMouse) * m * .4;',
+            '  vec2 uv = p * 1.1;',
+            '  uv += (uMF - .5) * .38;',
+            '  uv += (p - uMouse) * m * .4;',
             '  float d = -uTime * .16; float a = 0.;',
             '  for (int i = 0; i < 8; i++) { float fi = float(i); a += cos(fi - d - a * uv.x); d += sin(uv.y * fi + a); }',
             '  d += uTime * .16;',
@@ -1266,27 +1319,46 @@
         var loc = gl.getAttribLocation(prog, 'p');
         gl.enableVertexAttribArray(loc);
         gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0);
-        var uTime = gl.getUniformLocation(prog, 'uTime'), uRes = gl.getUniformLocation(prog, 'uRes'),
-            uMouse = gl.getUniformLocation(prog, 'uMouse'), uDark = gl.getUniformLocation(prog, 'uDark');
+        var uTime = gl.getUniformLocation(prog, 'uTime'), uSize = gl.getUniformLocation(prog, 'uSize'),
+            uMF = gl.getUniformLocation(prog, 'uMF'), uMouse = gl.getUniformLocation(prog, 'uMouse'), uDark = gl.getUniformLocation(prog, 'uDark');
 
-        var mouse = [.5, .5], target = [.5, .5], t0 = performance.now(), last = 0, raf = 0, onScreen = true;
+        /* Kanvas menutupi seluruh tinggi halaman. Posisi kursor dihitung dalam satuan tinggi layar
+           (sama dengan skala pola), jadi cahaya hijau mengikuti kursor di section mana pun. */
+        var mouse = [0, 0], target = [0, 0], mf = [.5, .5], lastC = null, primed = false,
+            t0 = performance.now(), last = 0, raf = 0, onScreen = true;
 
+        function vh() { return window.innerHeight || 1; }
         function resize() {
-            var w = Math.max(2, Math.round(canvas.clientWidth * .5)), h = Math.max(2, Math.round(canvas.clientHeight * .5));
+            var cw = canvas.clientWidth, ch = canvas.clientHeight;
+            var sc = Math.min(.5, Math.sqrt(650000 / Math.max(1, cw * ch)));   // batasi jumlah piksel di halaman panjang
+            var w = Math.max(2, Math.round(cw * sc)), h = Math.max(2, Math.round(ch * sc));
             if (canvas.width !== w || canvas.height !== h) { canvas.width = w; canvas.height = h; gl.viewport(0, 0, w, h); }
+        }
+        function aim() {
+            var r = canvas.getBoundingClientRect(), v = vh();
+            if (!r.width || !r.height) { return; }
+            var cx = lastC ? lastC[0] : window.innerWidth / 2, cy = lastC ? lastC[1] : v / 2;
+            target = [(cx - r.left) / v, (r.height - (cy - r.top)) / v];
+            mf = [Math.min(1.2, Math.max(-.2, cx / (window.innerWidth || 1))), Math.min(1.2, Math.max(-.2, 1 - cy / v))];
+            if (!primed) { mouse = target.slice(); primed = true; }
         }
         function draw(time) {
             resize();
+            aim();
+            var v = vh();
             gl.uniform1f(uTime, time);
-            gl.uniform2f(uRes, canvas.width, canvas.height);
+            gl.uniform2f(uSize, canvas.clientWidth / v, canvas.clientHeight / v);
             gl.uniform2f(uMouse, mouse[0], mouse[1]);
+            gl.uniform2f(uMF, mf[0], mf[1]);
             gl.uniform1f(uDark, currentTheme() === 'dark' ? 1 : 0);
             gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
         }
         function frame(now) {
             raf = 0;
+            if (!canvas.isConnected) { return; }   // halaman sudah diganti Turbo
             if (now - last >= 33) {
                 last = now;
+                aim();   // ikut dihitung ulang saat halaman digulir
                 mouse[0] += (target[0] - mouse[0]) * .09;
                 mouse[1] += (target[1] - mouse[1]) * .09;
                 draw((now - t0) / 1000 + 6);
@@ -1295,25 +1367,21 @@
         }
         function start() { if (!reduce && !raf) { raf = requestAnimationFrame(frame); } }
 
-        function aim(e) {
-            var r = canvas.getBoundingClientRect();
-            if (!r.width || !r.height) { return; }
-            target = [Math.min(1.2, Math.max(-.2, (e.clientX - r.left) / r.width)),
-                      Math.min(1.2, Math.max(-.2, 1 - (e.clientY - r.top) / r.height))];
-        }
-        window.addEventListener('pointermove', aim, { passive: true });
-        window.addEventListener('pointerdown', aim, { passive: true });
+        function track(e) { lastC = [e.clientX, e.clientY]; }
+        window.addEventListener('pointermove', track, { passive: true, signal: egSignal() });
+        window.addEventListener('pointerdown', track, { passive: true, signal: egSignal() });
 
         if (reduce) {
             draw(14);
-            window.addEventListener('resize', function () { draw(14); });
+            window.addEventListener('resize', function () { draw(14); }, { signal: egSignal() });
+            if ('ResizeObserver' in window) { new ResizeObserver(function () { draw(14); }).observe(host); }
             new MutationObserver(function () { draw(14); }).observe(root, { attributes: true, attributeFilter: ['data-theme'] });
             return;
         }
         if ('IntersectionObserver' in window) {
             new IntersectionObserver(function (en) { onScreen = en[0].isIntersecting; start(); }).observe(host);
         }
-        document.addEventListener('visibilitychange', start);
+        document.addEventListener('visibilitychange', start, { signal: egSignal() });
         start();
     })();
 
@@ -1325,38 +1393,63 @@
         if ('IntersectionObserver' in window) {
             new IntersectionObserver(function (en) { inView = en[0].isIntersecting; }).observe(title);
         }
-        setInterval(function () {
+        var iv = setInterval(function () {
             if (!inView || document.hidden) { return; }
             title.classList.add('st-reset');
             void title.offsetWidth;
             title.classList.remove('st-reset');
         }, 5000);
+        var sgT = egSignal();
+        if (sgT) { sgT.addEventListener('abort', function () { clearInterval(iv); }); }
     })();
 
     /* ---------- Parallax ilustrasi (satu handler scroll) ---------- */
+    /* ---------- Parallax & mikrodinamika (satu handler scroll) ---------- */
     (function () {
-        // [selector, kecepatan]. Positif = bergerak lebih lambat dari halaman, negatif = berlawanan.
-        var CONFIG = [['.hero .art', .12]];
+        // [selector, kecepatan, batas geser px (0 = bebas), selisih kedalaman antar elemen, hanya desktop]
+        var CONFIG = [
+            ['.hero .art', .12, 0, 0, false],
+            ['.scale .badge', .05, 8, .2, true],
+            ['.sw-no', .07, 8, 0, true],
+            ['.hm .hm-chip-no', .08, 10, .3, true]
+        ];
+        var desktop = window.matchMedia('(min-width: 821px) and (hover: hover) and (pointer: fine)');
         var items = [];
         if (!reduce) {
             CONFIG.forEach(function (c) {
-                $$(c[0]).forEach(function (el) { items.push({ el: el, host: el.parentElement, k: c[1] }); });
+                $$(c[0]).forEach(function (el, i) {
+                    if (!(el instanceof HTMLElement)) { return; }
+                    items.push({ el: el, host: el.parentElement, k: c[1] * (1 + (i % 4) * c[3]), max: c[2], micro: c[4], on: false });
+                });
             });
         }
         function parallax() {
-            var vh = window.innerHeight;
-            items.forEach(function (it) {
-                var r = it.host.getBoundingClientRect();
-                if (r.bottom < -200 || r.top > vh + 200) { return; }
-                var offset = (r.top + r.height / 2 - vh / 2) * it.k;
-                it.el.style.translate = '0 ' + (-offset).toFixed(1) + 'px';
-            });
+            var vh = window.innerHeight, live = desktop.matches, rects = new Map(), i, it, r, off;
+            for (i = 0; i < items.length; i++) {            // 1) baca semua posisi dulu
+                it = items[i];
+                if (it.micro && !live) { continue; }
+                if (!rects.has(it.host)) { rects.set(it.host, it.host.getBoundingClientRect()); }
+            }
+            for (i = 0; i < items.length; i++) {            // 2) lalu tulis
+                it = items[i];
+                if (it.micro && !live) {
+                    if (it.on) { it.el.style.translate = ''; it.on = false; }
+                    continue;
+                }
+                r = rects.get(it.host);
+                if (r.bottom < -200 || r.top > vh + 200) { continue; }
+                off = (r.top + r.height / 2 - vh / 2) * it.k;
+                if (it.max) { off = Math.max(-it.max, Math.min(it.max, off)); }
+                it.el.style.translate = '0 ' + (-off).toFixed(1) + 'px';
+                it.on = true;
+            }
         }
         var ticking = false;
         function update() { ticking = false; if (!reduce) { parallax(); } }
         function onScroll() { if (!ticking) { ticking = true; requestAnimationFrame(update); } }
-        window.addEventListener('scroll', onScroll, { passive: true });
-        window.addEventListener('resize', onScroll);
+        var sig = { passive: true, signal: egSignal() };
+        window.addEventListener('scroll', onScroll, sig);
+        window.addEventListener('resize', onScroll, sig);
         update();
     })();
 })();

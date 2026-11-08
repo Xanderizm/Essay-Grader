@@ -103,9 +103,17 @@ class AuthController extends Controller
     public function logout(Request $request)
     {
         if ($user = Auth::user()) {
-            \App\Models\Exam::where('user_id', $user->id)
+            $activeExamIds = \App\Models\Exam::where('user_id', $user->id)
                 ->where('status', 'active')
-                ->update(['status' => 'closed']);
+                ->pluck('id');
+
+            if ($activeExamIds->isNotEmpty()) {
+                \App\Models\Exam::whereIn('id', $activeExamIds)->update(['status' => 'closed']);
+
+                \App\Models\StudentAnswer::whereIn('question_id', function ($q) use ($activeExamIds) {
+                    $q->select('id')->from('questions')->whereIn('exam_id', $activeExamIds);
+                })->where('processing_status', 'processing')->update(['processing_status' => 'pending']);
+            }
         }
 
         Auth::logout();

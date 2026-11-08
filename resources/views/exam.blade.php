@@ -97,6 +97,23 @@
         white-space: normal;
         word-break: break-word;
     }
+
+    @media (max-width: 768px) {
+        .top-actions { flex-direction: column; align-items: stretch; gap: 10px; }
+        .top-actions .btn-group { flex-direction: column; width: 100%; }
+        .top-actions .btn-group .btn { width: 100%; min-height: 44px; text-align: center; }
+        .chart-bar { width: 100%; }
+        .chart-bar select { width: 100%; min-height: 44px; }
+        .toolbar { flex-direction: column; align-items: stretch; gap: 12px; }
+        .toolbar > div { width: 100%; }
+        .sort-badge-container { width: 100%; }
+        .sort-badge-container select { flex: 1; min-height: 44px; }
+        .toolbar-search { width: 100%; max-width: 100%; }
+        .toolbar-search input { flex: 1; min-height: 44px; max-width: none; }
+        .toolbar-search button, .toolbar-search .btn { min-height: 44px; }
+        .summary-stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(80px, 1fr)); gap: 10px; }
+        #results-table { min-width: 620px; }
+    }
 </style>
 @endpush
 @section('content')

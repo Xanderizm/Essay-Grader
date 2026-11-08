@@ -82,19 +82,27 @@ class ExamController extends Controller
         return view('exam_edit', compact('exam', 'questions', 'graded'));
     }
 
-    public function reanalyze(Exam $exam)
+    public function reanalyze(Request $request, Exam $exam)
     {
         $this->authorizeExam($exam);
 
         if ($exam->status === 'active') {
-            return back()->withErrors(['status' => 'Tutup penilaian terlebih dahulu sebelum melakukan analisis ulang.']);
+            if ($request->boolean('close_and_reanalyze')) {
+                $exam->update(['status' => 'closed']);
+            } else {
+                return back()->withErrors(['status' => 'Tutup status penilaian terlebih dahulu sebelum melakukan analisis ulang.']);
+            }
         }
 
         $exam->update(['analysis_status' => 'pending', 'analysis_error' => null]);
 
         AnalyzeExamForm::dispatch($exam);
 
-        return back()->with('status', 'Analisis ulang dimulai.');
+        $msg = $exam->wasChanged('status')
+            ? 'Penilaian ditutup dan analisis ulang formulir dimulai.'
+            : 'Analisis ulang dimulai.';
+
+        return back()->with('status', $msg);
     }
 
     public function saveAll(Request $request, Exam $exam)
@@ -153,7 +161,7 @@ class ExamController extends Controller
         $changed = $plan !== [];
 
         if ($changed && $exam->status === 'active') {
-            return $this->saveRefusal($request, 'Perubahan tidak bisa disimpan saat penilaian aktif. Tutup penilaian terlebih dulu, simpan perubahan, lalu aktifkan kembali.', 409, ['locked' => true]);
+            return $this->saveRefusal($request, 'Perubahan tidak dapat disimpan saat penilaian aktif. Tutup status penilaian terlebih dahulu sebelum melakukan perubahan.', 409, ['locked' => true]);
         }
 
         $clearIds = [];

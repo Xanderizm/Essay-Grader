@@ -50,6 +50,12 @@
         .dlg-icon-lg { width: 52px; height: 52px; margin: 0 auto 12px; font-size: 24px; }
         .dlg-center h3 { margin: 0 0 8px; }
         .dlg-center p { margin: 0 0 16px; }
+
+        @media (max-width: 680px) {
+            .row-actions { flex-direction: column; align-items: stretch; gap: 8px; }
+            .row-actions > *, .row-actions form { width: 100%; margin: 0; }
+            .row-actions button, .row-actions .btn { width: 100%; text-align: center; min-height: 44px; }
+        }
     </style>
 @endpush
 @php
@@ -126,6 +132,7 @@
         @unless($pending)
             <form id="reanalyze-form" method="POST" action="{{ route('exams.reanalyze', $exam) }}" data-active="{{ $exam->status === 'active' ? 1 : 0 }}">
                 @csrf
+                <input type="hidden" name="close_and_reanalyze" id="close-and-reanalyze" value="0">
                 <button type="submit">Analisis ulang</button>
             </form>
         @endunless
@@ -190,6 +197,15 @@
         </table>
     </div>
 
+    @if($exam->status === 'active')
+        <div class="card" style="background:var(--amber); color:var(--dark-text); border:1.5px solid var(--ink); margin-bottom:16px; padding:14px 18px; display:flex; align-items:center; gap:12px">
+            <span class="dlg-icon dlg-icon-warn" style="width:32px; height:32px; font-size:16px; flex-shrink:0" aria-hidden="true">!</span>
+            <div>
+                <b>Mode Terproteksi:</b> Status penilaian sedang aktif. Struktur formulir dan rubrik penilaian tidak dapat diubah selama penilaian aktif. Tutup status penilaian terlebih dahulu sebelum melakukan perubahan.
+            </div>
+        </div>
+    @endif
+
     <h3>Rubrik Penilaian</h3>
     <p class="muted">Rubrik boleh dikosongkan; AI akan menilai sendiri berdasarkan isi jawaban. Pertanyaan yang ditandai "Tidak dinilai" hanya dicatat.</p>
 
@@ -202,7 +218,7 @@
                 </div>
                 <div>
                     <label for="mode-{{ $q->id }}" class="muted" style="margin:0 0 4px">Mode penilaian</label>
-                    <select id="mode-{{ $q->id }}" name="modes[{{ $q->id }}]" form="exam-form" data-mode-toggle="rubric-{{ $q->id }}" data-qid="{{ $q->id }}" data-graded="{{ $graded[$q->id] ?? 0 }}">
+                    <select id="mode-{{ $q->id }}" name="modes[{{ $q->id }}]" form="exam-form" data-mode-toggle="rubric-{{ $q->id }}" data-qid="{{ $q->id }}" data-graded="{{ $graded[$q->id] ?? 0 }}" data-locked="{{ $exam->status === 'active' ? 1 : 0 }}">
                         <option value="scoring" @selected($q->grading_mode === 'scoring')>Dinilai</option>
                         <option value="non_scoring" @selected($q->grading_mode !== 'scoring')>Tidak dinilai</option>
                     </select>
@@ -211,7 +227,7 @@
 
             <div class="field" id="rubric-{{ $q->id }}" style="margin-top:14px" @if($q->grading_mode !== 'scoring') hidden @endif>
                 <label for="key-{{ $q->id }}">Rubrik penilaian (opsional)</label>
-                <textarea id="key-{{ $q->id }}" name="keys[{{ $q->id }}]" form="exam-form" style="min-height:110px" placeholder="Kosongkan agar AI menilai sendiri.">{{ $q->answer_key }}</textarea>
+                <textarea id="key-{{ $q->id }}" name="keys[{{ $q->id }}]" form="exam-form" style="min-height:110px" placeholder="Kosongkan agar AI menilai sendiri." data-locked="{{ $exam->status === 'active' ? 1 : 0 }}" @if($exam->status === 'active') readonly @endif>{{ $q->answer_key }}</textarea>
             </div>
 
             <form method="POST" action="{{ route('questions.regrade', $q) }}" class="row-actions" data-ajax data-regrade-for="{{ $q->id }}" @if($q->grading_mode !== 'scoring') hidden @endif data-confirm="Semua jawaban pertanyaan ini akan dinilai ulang dan nilai lama diganti. Lanjutkan?">

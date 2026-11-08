@@ -11,6 +11,32 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: ['selector', '[data-theme="dark"]'],
+            corePlugins: { preflight: false },
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            lime: '#c4f55d',
+                            ink: '#1b1b1b',
+                            mist: '#f1f1ef',
+                            sky: '#cfe2ff',
+                            amber: '#ffe27a',
+                            coral: '#ff9d8a',
+                        }
+                    },
+                    fontFamily: {
+                        display: ['"Space Grotesk"', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+                        mono: ['"Space Mono"', 'ui-monospace', 'monospace'],
+                    }
+                }
+            }
+        };
+    </script>
+    <script defer src="{{ asset('js/alpine.min.js') }}"></script>
     <script>
         /* Tema dibaca paling awal agar halaman tidak berkedip. Pilihan dibagikan ke semua halaman lewat localStorage. */
         (function () {
@@ -53,6 +79,7 @@
             --err: #ff9d8a; --err-bg: #2c1c18; --card-dark-bg: #2a2a28; --card-dark-fg: #ecece8;
         }
         * { box-sizing: border-box; }
+        html, body { overflow-x: hidden; width: 100%; max-width: 100vw; }
         html { scroll-behavior: smooth; }
         body {
             margin: 0; background: var(--back); color: var(--ink);
@@ -78,28 +105,90 @@
         }
         main a:not(.btn):hover, .foot a:hover { background: var(--lime); color: var(--dark-text); }
 
+        [x-cloak] { display: none !important; }
+
         /* Bilah atas */
         /* Sticky: menempel 14px dari tepi atas layar, jadi kartu putih melengkung tetap terlihat di atasnya */
         .topbar {
             position: sticky; top: 14px; z-index: 40;
-            display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap;
+            display: flex; flex-direction: column;
             margin: -10px -14px 12px; padding: 10px 14px;
             border: 1.5px solid transparent; border-radius: 18px;
-            background: color-mix(in srgb, var(--paper) 84%, transparent);
+            background: color-mix(in srgb, var(--paper) 86%, transparent);
             -webkit-backdrop-filter: blur(14px) saturate(1.2); backdrop-filter: blur(14px) saturate(1.2);
             transition: border-color .2s, box-shadow .2s;
         }
         .topbar.is-stuck { border-color: var(--ink); box-shadow: 0 4px 0 var(--ink); }
+        .topbar-row {
+            display: flex; align-items: center; justify-content: space-between; gap: 12px; width: 100%;
+        }
         html { scroll-padding-top: 96px; }
-        .brand { display: flex; align-items: center; gap: 10px; font: 700 17px var(--display); color: var(--ink); text-decoration: none; }
+        .brand { display: flex; align-items: center; gap: 10px; font: 700 17px var(--display); color: var(--ink); text-decoration: none; flex-shrink: 0; }
         .brand-mark { width: 30px; height: 30px; border-radius: 9px; background: transparent; display: grid; place-items: center; }
         .nav { display: flex; align-items: center; gap: 4px; flex-wrap: wrap; font-size: 12.5px; }
         .nav a { padding: 6px 10px; border-radius: 8px; color: var(--ink); text-decoration: none; }
         .nav a:hover { background: var(--mist); }
         .nav a.active { background: var(--lime); color: var(--dark-text); }
-        .nav a.pill { border: 1.5px solid var(--ink); border-radius: 10px; padding: 7px 14px; background: var(--surface); margin-left: 8px; }
+        .nav a.pill { border: 1.5px solid var(--ink); border-radius: 10px; padding: 7px 14px; background: var(--surface); margin-left: 8px; font-weight: 700; }
         .nav a.pill.solid { background: var(--ink); color: var(--on-ink); margin-left: 0; }
         .nav form { margin: 0; }
+
+        .nav-desktop { display: flex; }
+        .nav-mobile-bar { display: none; align-items: center; gap: 8px; }
+
+        .nav-user-box {
+            display: inline-flex; align-items: center; gap: 6px;
+            padding: 6px 12px; min-height: 42px; max-width: 155px;
+            border: 1.5px solid var(--ink); border-radius: 10px;
+            background: var(--surface); color: var(--ink);
+            text-decoration: none !important; font: 700 12.5px var(--display);
+            box-shadow: 0 2px 0 var(--ink); vertical-align: middle;
+            transition: transform .12s, box-shadow .12s;
+        }
+        .nav-user-box:hover {
+            background: var(--mist); transform: translate(-1px, -1px);
+            box-shadow: 2px 2px 0 var(--lime); color: var(--ink);
+        }
+        .nav-user-name {
+            overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 110px;
+        }
+        .nav-user-icon { flex-shrink: 0; color: var(--ink); }
+
+        .nav-hamburger-btn {
+            display: inline-flex; align-items: center; justify-content: center;
+            width: 44px; height: 44px; min-width: 44px; min-height: 44px; padding: 0;
+            border: 1.5px solid var(--ink); border-radius: 10px;
+            background: var(--surface); color: var(--ink);
+            cursor: pointer; box-shadow: 0 2px 0 var(--ink);
+            transition: transform .12s, box-shadow .12s, background .15s;
+        }
+        .nav-hamburger-btn:hover {
+            transform: translate(-1px, -1px); box-shadow: 3px 3px 0 var(--lime); background: var(--mist);
+        }
+        .nav-hamburger-btn:active { transform: none; box-shadow: none; }
+
+        .nav-mobile-dropdown {
+            width: 100%; margin-top: 10px; padding: 12px;
+            border: 1.5px solid var(--ink); border-radius: 16px;
+            background: color-mix(in srgb, var(--paper) 95%, transparent);
+            -webkit-backdrop-filter: blur(16px) saturate(1.2); backdrop-filter: blur(16px) saturate(1.2);
+            box-shadow: 0 6px 0 var(--ink); display: flex; flex-direction: column; gap: 6px;
+        }
+        .nav-dropdown-link {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 10px 14px; min-height: 44px; border-radius: 10px;
+            font: 700 13px var(--display); color: var(--ink); text-decoration: none !important;
+            transition: background .15s;
+        }
+        .nav-dropdown-link:hover { background: var(--mist); color: var(--ink); }
+        .nav-dropdown-link.active { background: var(--lime); color: var(--dark-text); }
+        .nav-dropdown-divider { height: 1px; background: var(--line); margin: 4px 0; }
+        .nav-dropdown-btn {
+            display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+            width: 100%; min-height: 44px; padding: 10px 16px;
+            font: 700 12.5px/1 var(--mono); border: 1.5px solid var(--ink); border-radius: 10px;
+            cursor: pointer; text-decoration: none;
+        }
 
         /* Tombol */
         button, .btn {
@@ -198,14 +287,17 @@
 
         @media (max-width: 520px) { .name-row { grid-template-columns: 1fr; } }
         @media (max-width: 820px) {
-            .shell { margin: 0; border-radius: 0; padding: 18px 16px 24px; }
+            .shell { margin: 0; border-radius: 0; padding: 18px 14px 28px; width: 100%; box-sizing: border-box; }
             .topbar { top: 8px; margin: -8px -8px 10px; padding: 8px 10px; border-radius: 14px; gap: 8px; }
-            .nav { width: 100%; flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; }
-            .nav::-webkit-scrollbar { display: none; }
-            .nav > * { flex-shrink: 0; }
+            .nav-desktop { display: none !important; }
+            .nav-mobile-bar { display: flex !important; }
+            button, .btn { min-height: 44px; padding: 10px 16px; }
+            input, select, textarea { font-size: 14px; }
             .auth { grid-template-columns: 1fr; }
             .auth .art { display: none; }
-            .sec-head { margin-top: 32px; }
+            .sec-head { margin-top: 24px; }
+            .card { padding: 16px; border-radius: 14px; }
+            .dlg-actions button { min-height: 44px; }
         }
         @media (prefers-reduced-motion: reduce) {
             * { transition: none !important; scroll-behavior: auto !important; }
@@ -248,7 +340,23 @@
 
         /* Dialog / Popup Modal Tema */
         .dlg { border: 0; padding: 0; background: transparent; max-width: 480px; width: calc(100% - 32px); }
-        .dlg::backdrop { background: rgba(27, 27, 27, .5); }
+        .dlg::backdrop {
+            background: rgba(27, 27, 27, .55);
+            -webkit-backdrop-filter: blur(3px);
+            backdrop-filter: blur(3px);
+            animation: dlgBackdropFade .18s ease-out;
+        }
+        .dlg[open] {
+            animation: dlgPop .2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+        @keyframes dlgPop {
+            from { opacity: 0; transform: scale(0.93) translateY(8px); }
+            to { opacity: 1; transform: scale(1) translateY(0); }
+        }
+        @keyframes dlgBackdropFade {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
         .dlg-box { background: var(--surface); color: var(--ink); border: 1.5px solid var(--ink); border-radius: 18px; box-shadow: 0 4px 0 var(--ink); padding: 22px; }
         .dlg-center .dlg-box { text-align: center; }
         .dlg-icon { width: 36px; height: 36px; border-radius: 50%; background: var(--amber); border: 1.5px solid var(--ink); display: grid; place-items: center; font: 700 18px var(--display); color: var(--dark-text); }
@@ -257,18 +365,7 @@
         .dlg-icon-danger { background: var(--coral); }
         .dlg-icon-primary { background: var(--lime); }
         .dlg-actions { display: flex; justify-content: flex-end; gap: 10px; flex-wrap: wrap; }
-        .dlg-actions button { min-width: 105px; }
-        .dlg { border: 0; padding: 0; background: transparent; max-width: 480px; width: calc(100% - 32px); }
-        .dlg::backdrop { background: rgba(27, 27, 27, .5); }
-        .dlg-box { background: var(--surface); color: var(--ink); border: 1.5px solid var(--ink); border-radius: 18px; box-shadow: 0 4px 0 var(--ink); padding: 22px; }
-        .dlg-center .dlg-box { text-align: center; }
-        .dlg-icon { width: 36px; height: 36px; border-radius: 50%; background: var(--amber); border: 1.5px solid var(--ink); display: grid; place-items: center; font: 700 18px var(--display); color: var(--dark-text); }
-        .dlg-icon-lg { width: 52px; height: 52px; margin: 0 auto 12px; font-size: 24px; }
-        .dlg-icon-warn { background: var(--amber); }
-        .dlg-icon-danger { background: var(--coral); }
-        .dlg-icon-primary { background: var(--lime); }
-        .dlg-actions { display: flex; justify-content: flex-end; gap: 10px; flex-wrap: wrap; }
-        .dlg-actions button { min-width: 105px; }
+        .dlg-actions button { min-width: 110px; }
 
         /* Mode gelap untuk halaman lain (dialog, grafik, lencana) yang punya warna tetap di CSS-nya sendiri */
         html[data-theme="dark"] .dlg::backdrop { background: rgba(0, 0, 0, .65); }
@@ -285,6 +382,16 @@
         html[data-theme="dark"] .chart-host svg text[fill="#5f5f5a"] { fill: var(--muted); }
         html[data-theme="dark"] .chart-host svg text[fill="#1b1b1b"], html[data-theme="dark"] .chart-host svg circle[fill="#1b1b1b"] { fill: var(--ink); }
         html[data-theme="dark"] .chart-host svg circle[fill="#c9c9c4"] { fill: var(--line-2); }
+        html[data-theme="dark"] .nav-mobile-dropdown {
+            border-color: rgba(236, 236, 232, .55);
+            box-shadow: 0 6px 0 rgba(236, 236, 232, .22);
+            background: color-mix(in srgb, var(--paper) 96%, transparent);
+        }
+        html[data-theme="dark"] .nav-user-box,
+        html[data-theme="dark"] .nav-hamburger-btn {
+            border-color: rgba(236, 236, 232, .55);
+            box-shadow: 0 2px 0 rgba(236, 236, 232, .22);
+        }
     </style>
     @stack('styles')
 </head>
@@ -298,42 +405,178 @@
 @endphp
 <a class="skip" href="#isi">Lewati ke konten</a>
 <div class="shell">
-    <header class="topbar">
-        <a class="brand" href="{{ auth()->check() ? route('dashboard') : url('/') }}">
-            <span class="brand-mark" aria-hidden="true">
-                <img src="{{ asset('favicon.svg') }}" style="width: 30px; height: 30px; object-fit: contain;" alt="">
-            </span>
-            <span>Essay Grader</span>
-        </a>
+    <header class="topbar sticky top-3.5 z-40 backdrop-blur-md transition-all duration-200" 
+            x-data="{ open: false }" 
+            @keydown.escape.window="open = false" 
+            @click.outside="open = false">
+        <div class="topbar-row flex items-center justify-between w-full gap-3">
+            <a class="brand flex items-center gap-2.5 font-bold text-[17px] text-ink shrink-0 no-underline" href="{{ auth()->check() ? route('dashboard') : url('/') }}">
+                <span class="brand-mark w-[30px] h-[30px] grid place-items-center" aria-hidden="true">
+                    <img src="{{ asset('favicon.svg') }}" style="width: 30px; height: 30px; object-fit: contain;" alt="">
+                </span>
+                <span>Essay Grader</span>
+            </a>
 
-        <nav class="nav" aria-label="Menu utama">
+            {{-- Desktop Navigation (Tampil di Desktop / Layar Lebar) --}}
+            <nav class="nav nav-desktop hidden md:flex items-center gap-1 text-[12.5px]" aria-label="Menu utama">
+                @auth
+                    <a href="{{ route('dashboard') }}" @class(['active' => request()->routeIs('dashboard', 'exams.*', 'questions.*', 'answers.*')]){!! $cur('dashboard', 'exams.*', 'questions.*', 'answers.*') !!}>Penilaian</a>
+                    <a href="{{ route('google.index') }}" @class(['active' => request()->routeIs('google.*')]){!! $cur('google.*') !!}>Google</a>
+                    @if(auth()->user()->is_admin)
+                        <a href="{{ route('keys.index') }}" @class(['active' => request()->routeIs('keys.*')]){!! $cur('keys.*') !!}>Kunci AI</a>
+                        @if($has('admin.status'))
+                            <a href="{{ route('admin.status') }}" @class(['active' => request()->routeIs('admin.status')]){!! $cur('admin.status') !!}>Status sistem</a>
+                        @endif
+                    @endif
+                    @if($has('account.show'))
+                        <a class="pill" href="{{ route('account.show') }}"{!! $cur('account.*') !!}>{{ auth()->user()->name }}</a>
+                    @else
+                        <span class="muted" style="margin-left:8px">{{ auth()->user()->name }}</span>
+                    @endif
+                    <form class="logout-form" method="POST" action="{{ route('logout') }}" data-has-active="{{ $hasActiveExams ? 1 : 0 }}">
+                        @csrf
+                        <button type="submit" class="linkbtn">Keluar</button>
+                    </form>
+                @else
+                    <a href="{{ url('/') }}" @class(['active' => request()->is('/')])>Beranda</a>
+                    <a href="{{ route('privacy') }}" @class(['active' => request()->routeIs('privacy')])>Privasi</a>
+                    <a class="pill" href="{{ route('login') }}">Masuk</a>
+                    @if($signupOpen)
+                        <a class="pill solid" href="{{ route('register') }}">Daftar</a>
+                    @endif
+                @endauth
+            </nav>
+
+            {{-- Mobile Bar (Tampil di Mobile: Kotak Nama User + Tombol Hamburger) --}}
+            <div class="nav-mobile-bar flex md:hidden items-center gap-2">
+                @auth
+                    {{-- Kotak Nama Pengguna di sisi kanan berdampingan dengan hamburger menu --}}
+                    @if($has('account.show'))
+                        <a class="nav-user-box" href="{{ route('account.show') }}" title="Akun: {{ auth()->user()->name }}">
+                            <svg class="nav-user-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                            <span class="nav-user-name">{{ auth()->user()->name }}</span>
+                        </a>
+                    @else
+                        <span class="nav-user-box">
+                            <svg class="nav-user-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                            <span class="nav-user-name">{{ auth()->user()->name }}</span>
+                        </span>
+                    @endif
+                @endauth
+
+                {{-- Tombol Hamburger Menu (☰) --}}
+                <button type="button" 
+                        class="nav-hamburger-btn" 
+                        @click="open = !open" 
+                        :aria-expanded="open" 
+                        aria-label="Buka menu navigasi">
+                    <svg x-show="!open" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <line x1="3" y1="6" x2="21" y2="6"></line>
+                        <line x1="3" y1="12" x2="21" y2="12"></line>
+                        <line x1="3" y1="18" x2="21" y2="18"></line>
+                    </svg>
+                    <svg x-show="open" x-cloak width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                </button>
+            </div>
+        </div>
+
+        {{-- Dropdown Menu Navigasi Mobile (Alpine.js) --}}
+        <div x-show="open" 
+             x-cloak 
+             x-transition:enter="transition ease-out duration-200"
+             x-transition:enter-start="opacity-0 -translate-y-2 scale-98"
+             x-transition:enter-end="opacity-100 translate-y-0 scale-100"
+             x-transition:leave="transition ease-in duration-150"
+             x-transition:leave-start="opacity-100 translate-y-0 scale-100"
+             x-transition:leave-end="opacity-0 -translate-y-2 scale-98"
+             class="nav-mobile-dropdown"
+             role="menu"
+             aria-label="Menu navigasi mobile">
             @auth
-                <a href="{{ route('dashboard') }}" @class(['active' => request()->routeIs('dashboard', 'exams.*', 'questions.*', 'answers.*')]){!! $cur('dashboard', 'exams.*', 'questions.*', 'answers.*') !!}>Penilaian</a>
-                <a href="{{ route('google.index') }}" @class(['active' => request()->routeIs('google.*')]){!! $cur('google.*') !!}>Google</a>
+                {{-- Menu Dashboard / Internal --}}
+                <a href="{{ route('dashboard') }}" 
+                   class="nav-dropdown-link @if(request()->routeIs('dashboard', 'exams.*', 'questions.*', 'answers.*')) active @endif"
+                   @click="open = false">
+                    <span>Penilaian</span>
+                    <span class="badge" style="font-size:10px">Ujian</span>
+                </a>
+                <a href="{{ route('google.index') }}" 
+                   class="nav-dropdown-link @if(request()->routeIs('google.*')) active @endif"
+                   @click="open = false">
+                    <span>Google</span>
+                    <span class="badge" style="font-size:10px">Koneksi</span>
+                </a>
                 @if(auth()->user()->is_admin)
-                    <a href="{{ route('keys.index') }}" @class(['active' => request()->routeIs('keys.*')]){!! $cur('keys.*') !!}>Kunci AI</a>
+                    <a href="{{ route('keys.index') }}" 
+                       class="nav-dropdown-link @if(request()->routeIs('keys.*')) active @endif"
+                       @click="open = false">
+                        <span>Kunci AI</span>
+                        <span class="badge info" style="font-size:10px">Admin</span>
+                    </a>
                     @if($has('admin.status'))
-                        <a href="{{ route('admin.status') }}" @class(['active' => request()->routeIs('admin.status')]){!! $cur('admin.status') !!}>Status sistem</a>
+                        <a href="{{ route('admin.status') }}" 
+                           class="nav-dropdown-link @if(request()->routeIs('admin.status')) active @endif"
+                           @click="open = false">
+                            <span>Status sistem</span>
+                            <span class="badge ok" style="font-size:10px">Admin</span>
+                        </a>
                     @endif
                 @endif
                 @if($has('account.show'))
-                    <a class="pill" href="{{ route('account.show') }}"{!! $cur('account.*') !!}>{{ auth()->user()->name }}</a>
-                @else
-                    <span class="muted" style="margin-left:8px">{{ auth()->user()->name }}</span>
+                    <a href="{{ route('account.show') }}" 
+                       class="nav-dropdown-link @if(request()->routeIs('account.*')) active @endif"
+                       @click="open = false">
+                        <span>Akun Saya</span>
+                        <span class="muted" style="font-size:11px">{{ auth()->user()->name }}</span>
+                    </a>
                 @endif
-                <form id="logout-form" method="POST" action="{{ route('logout') }}" data-has-active="{{ $hasActiveExams ? 1 : 0 }}">
+
+                <div class="nav-dropdown-divider"></div>
+
+                <form class="logout-form" method="POST" action="{{ route('logout') }}" data-has-active="{{ $hasActiveExams ? 1 : 0 }}">
                     @csrf
-                    <button type="submit" class="linkbtn">Keluar</button>
+                    <button type="submit" class="nav-dropdown-btn danger">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+                        <span>Keluar Akun</span>
+                    </button>
                 </form>
             @else
-                <a href="{{ url('/') }}" @class(['active' => request()->is('/')])>Beranda</a>
-                <a href="{{ route('privacy') }}" @class(['active' => request()->routeIs('privacy')])>Privasi</a>
-                <a class="pill" href="{{ route('login') }}">Masuk</a>
-                @if($signupOpen)
-                    <a class="pill solid" href="{{ route('register') }}">Daftar</a>
+                {{-- Menu Publik / Landing Page --}}
+                <a href="{{ url('/') }}" 
+                   class="nav-dropdown-link @if(request()->is('/')) active @endif"
+                   @click="open = false">
+                    <span>Beranda</span>
+                </a>
+                <a href="{{ route('privacy') }}" 
+                   class="nav-dropdown-link @if(request()->routeIs('privacy')) active @endif"
+                   @click="open = false">
+                    <span>Privasi</span>
+                </a>
+                @if($has('terms'))
+                    <a href="{{ route('terms') }}" 
+                       class="nav-dropdown-link @if(request()->routeIs('terms')) active @endif"
+                       @click="open = false">
+                        <span>Ketentuan Layanan</span>
+                    </a>
                 @endif
+
+                <div class="nav-dropdown-divider"></div>
+
+                <div style="display:flex; flex-direction:column; gap:8px;">
+                    <a class="btn btn-outline" href="{{ route('login') }}" style="width:100%; justify-content:center; text-align:center;">
+                        Masuk
+                    </a>
+                    @if($signupOpen)
+                        <a class="btn btn-lime" href="{{ route('register') }}" style="width:100%; justify-content:center; text-align:center;">
+                            Daftar
+                        </a>
+                    @endif
+                </div>
             @endauth
-        </nav>
+        </div>
     </header>
 
     <main id="isi">
@@ -427,18 +670,6 @@
         </div>
     </div>
 </dialog>
-<dialog id="confirm-dialog" class="dlg dlg-center" aria-labelledby="cf-title" aria-describedby="cf-text">
-    <div class="dlg-box">
-        <span id="cf-icon" class="dlg-icon dlg-icon-lg dlg-icon-warn" aria-hidden="true">!</span>
-        <h3 id="cf-title">Konfirmasi</h3>
-        <p id="cf-text" class="muted" style="white-space:pre-line; margin-bottom:18px"></p>
-        <div class="dlg-actions" style="justify-content:center; gap:10px">
-            <button type="button" id="cf-cancel" class="btn-outline" data-close autofocus>Batalkan</button>
-            <button type="button" id="cf-ok">Lanjutkan</button>
-        </div>
-    </div>
-</dialog>
-<div id="toasts" aria-live="polite" role="status"></div>
 <div id="toasts" aria-live="polite" role="status"></div>
 <script src="{{ asset('js/app.js') }}" defer></script>
 </body>
