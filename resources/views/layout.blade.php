@@ -79,7 +79,10 @@
             --err: #ff9d8a; --err-bg: #2c1c18; --card-dark-bg: #2a2a28; --card-dark-fg: #ecece8;
         }
         * { box-sizing: border-box; }
-        html, body { overflow-x: hidden; width: 100%; max-width: 100vw; }
+        /* Hanya html yang memotong overflow horizontal (menjadi penggulir viewport). Jika body juga diberi
+           overflow-x: hidden, body menjadi penggulir sendiri dan position: sticky (navbar + tombol tema) berhenti bekerja. */
+        html { overflow-x: hidden; width: 100%; }
+        body { width: 100%; max-width: 100vw; }
         html { scroll-behavior: smooth; }
         body {
             margin: 0; background: var(--back); color: var(--ink);
@@ -116,8 +119,11 @@
             border: 1.5px solid transparent; border-radius: 18px;
             background: color-mix(in srgb, var(--paper) 86%, transparent);
             -webkit-backdrop-filter: blur(14px) saturate(1.2); backdrop-filter: blur(14px) saturate(1.2);
-            transition: border-color .2s, box-shadow .2s;
+            transition: border-color .2s, box-shadow .2s, transform .28s ease;
         }
+        /* Smart Header: naik keluar layar saat menggulir, turun lagi saat berhenti */
+        .topbar.is-hidden { transform: translateY(calc(-100% - 24px)); pointer-events: none; }
+        @media (prefers-reduced-motion: reduce) { .topbar { transition: border-color .2s, box-shadow .2s; } }
         .topbar.is-stuck { border-color: var(--ink); box-shadow: 0 4px 0 var(--ink); }
         .topbar-row {
             display: flex; align-items: center; justify-content: space-between; gap: 12px; width: 100%;
@@ -167,8 +173,11 @@
         }
         .nav-hamburger-btn:active { transform: none; box-shadow: none; }
 
+        /* Mengambang di atas konten (absolute terhadap .topbar yang sticky), tidak mendorong elemen di bawahnya */
         .nav-mobile-dropdown {
-            width: 100%; margin-top: 10px; padding: 12px;
+            position: absolute; top: calc(100% + 8px); left: 0; right: 0; z-index: 60;
+            max-height: calc(100vh - 110px); max-height: calc(100dvh - 110px); overflow-y: auto; overscroll-behavior: contain;
+            padding: 12px;
             border: 1.5px solid var(--ink); border-radius: 16px;
             background: color-mix(in srgb, var(--paper) 95%, transparent);
             -webkit-backdrop-filter: blur(16px) saturate(1.2); backdrop-filter: blur(16px) saturate(1.2);
@@ -405,7 +414,7 @@
 @endphp
 <a class="skip" href="#isi">Lewati ke konten</a>
 <div class="shell">
-    <header class="topbar sticky top-3.5 z-40 backdrop-blur-md transition-all duration-200" 
+    <header class="topbar" 
             x-data="{ open: false }" 
             @keydown.escape.window="open = false" 
             @click.outside="open = false">
@@ -605,19 +614,31 @@
     </footer>
 </div>
 <script>
-    // Topbar sticky: beri garis dan bayangan saat menempel
+    // Topbar sticky + Smart Header: garis/bayangan saat menempel; sembunyi saat menggulir, muncul lagi saat berhenti
     (function () {
         var bar = document.querySelector('.topbar');
         if (!bar) { return; }
-        var busy = false;
+        var busy = false, lastY = window.scrollY, idle = 0;
+        function menuOpen() {
+            var b = bar.querySelector('.nav-hamburger-btn');
+            return !!b && b.getAttribute('aria-expanded') === 'true';
+        }
+        function show() { bar.classList.remove('is-hidden'); }
         function update() {
             busy = false;
-            var top = parseFloat(getComputedStyle(bar).top) || 0;
-            bar.classList.toggle('is-stuck', window.scrollY > 8 && bar.getBoundingClientRect().top <= top + 1);
+            var y = window.scrollY, top = parseFloat(getComputedStyle(bar).top) || 0;
+            bar.classList.toggle('is-stuck', y > 8 && bar.getBoundingClientRect().top <= top + 1);
+            // sembunyi hanya saat benar-benar menggulir, bukan di puncak halaman, dan tidak saat menu/fokus aktif di bilah
+            if (Math.abs(y - lastY) > 3 && y > 90 && !menuOpen() && !bar.matches(':focus-within')) {
+                bar.classList.add('is-hidden');
+            }
+            lastY = y;
+            clearTimeout(idle);
+            idle = setTimeout(show, 220);
         }
         window.addEventListener('scroll', function () {
             if (!busy) { busy = true; requestAnimationFrame(update); }
-        }, { passive: true });
+        }, window.egSignal ? { passive: true, signal: egSignal() } : { passive: true });
         update();
     })();
     // Mode terang/gelap
