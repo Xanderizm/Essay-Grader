@@ -842,9 +842,9 @@
         bb({ x: -70, y: -120, z: 0, w: 250, h: 170, cls: 'bb-card', html:
             '<div style="display:flex;gap:5px;margin-bottom:8px"><i style="width:9px;height:9px;border-radius:50%;background:#1b1b1b"></i><i style="width:9px;height:9px;border-radius:50%;background:#c4f55d;border:1.5px solid #1b1b1b"></i><i style="width:9px;height:9px;border-radius:50%;background:#c9c9c4"></i></div>' +
             '<div style="padding:5px 8px;border-radius:7px;background:#c4f55d;border:2px solid #1b1b1b;font:700 11px var(--mono);white-space:nowrap;overflow:hidden">forms.google.com/&hellip;/edit<span class="caret" style="height:11px"></span></div>' +
-            '<div style="margin-top:12px;font:800 17px var(--display)">Kuis Esai Biologi</div><div style="margin-top:8px;height:6px;border-radius:3px;background:#c9c9c4"></div><div style="margin-top:7px;height:6px;width:70%;border-radius:3px;background:#c9c9c4"></div><div style="margin-top:7px;height:6px;width:84%;border-radius:3px;background:#c9c9c4"></div>' }) +
+            '<div style="margin-top:12px;font:800 17px var(--display)">Kuis Esai Pemrograman</div><div style="margin-top:8px;height:6px;border-radius:3px;background:#c9c9c4"></div><div style="margin-top:7px;height:6px;width:70%;border-radius:3px;background:#c9c9c4"></div><div style="margin-top:7px;height:6px;width:84%;border-radius:3px;background:#c9c9c4"></div>' }) +
         disc({ x: 50, y: 0, r: 62, h: 12, c: '#c4f55d', html: '<svg viewBox="0 0 24 24" style="position:absolute;inset:26%;width:48%;height:48%;fill:none;stroke:#1b1b1b;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></svg>' }) +
-        bb({ x: 130, y: 110, z: 0, w: 110, h: 46, cls: 'bb-card', html: '<small style="opacity:1;font-weight:700;color:#1b1b1b">TITIK AWAL</small><span style="font-size:13px">Tempel link</span>' }));
+        bb({ x: 130, y: 110, z: 0, w: 110, h: 46, cls: 'bb-card', html: '<small style="opacity:1;font-weight:700;color:#1b1b1b">Tautkan Link</small>' }));
 
     /* 2. Kontrol rubrik: meja kontrol + robot Ilham + tombol aktif */
     h += station(1, 380, 380, 0, 0,
@@ -865,20 +865,20 @@
     h += station(3, 380, 380, 0, 0,
         arch({ dir: 'y', a: 96, h: 124, t: 24, c: '#fff', along: 70 }) +
         '<div class="o3 laser" style="left:0;top:0">' + box({ x: -96, y: -3, w: 192, d: 6, h: 110, c: '#c4f55d', z: 0 }) + '</div>' +
-        bb({ x: -175, y: -105, z: 0, w: 168, h: 90, cls: 'bb-card', html: '<small style="color:#1b1b1b;opacity:1;font-weight:700">KATA KUNCI</small><div style="margin-top:4px"><span class="chip hl">fotosintesis</span><span class="chip">klorofil</span><span class="chip hl">makna&nbsp;&#10003;</span></div>' }) +
+        bb({ x: -175, y: -105, z: 0, w: 168, h: 90, cls: 'bb-card', html: '<small style="color:#1b1b1b;opacity:1;font-weight:700">KATA KUNCI</small><div style="margin-top:4px"><span class="chip hl">Syntax</span><span class="chip">Error</span><span class="chip hl">Debugging&nbsp;&#10003;</span></div>' }) +
         bb({ x: -170, y: 120, z: 0, w: 168, h: 92, cls: 'bb-card', html: '<b>Relevansi rubrik</b><div class="meter"><i></i></div><small style="opacity:1;font-weight:700">92% cocok</small>' }));
 
     /* 5. Review manual: mesin keluaran skor + tabel interaktif + pengajar */
     h += station(4, 400, 380, 0, 0,
         box({ x: -190, y: -150, w: 130, d: 110, h: 76, c: '#1b1b1b', top: '<div style="display:grid;place-items:center;height:100%;font:700 11px var(--mono);color:#c4f55d">SKOR</div>' }) +
-        bb({ x: 70, y: -80, z: 0, w: 244, h: 160, cls: 'bb-card', html: '<table class="tbl"><tr><th>Siswa</th><th>Nilai</th></tr><tr><td>Rina A.</td><td>86</td></tr><tr><td>Dimas P.</td><td><span class="ed"><b>78</b><b>84</b></span></td></tr><tr><td>Salsa M.</td><td>91</td></tr></table>' }) +
+        bb({ x: 70, y: -80, z: 0, w: 244, h: 160, cls: 'bb-card', html: '<table class="tbl"><tr><th>Siswa</th><th>Nilai</th></tr><tr><td>Teddy</td><td>86</td></tr><tr><td>Tuti</td><td><span class="ed"><b>78</b><b>84</b></span></td></tr><tr><td>Sayuti</td><td>91</td></tr></table>' }) +
         bb({ x: 168, y: 96, z: 0, w: 82, h: 130, html: teacherSVG() }));
 
     /* 6. Analytics: monitor grafik + ikon unduh Excel */
     h += station(5, 420, 380, 20, 0,
         box({ x: 40, y: -110, w: 240, d: 22, h: 164, c: '#1b1b1b', front: '<div class="mon"><div class="mon-h"><i></i><i></i><i></i><span>statistik_kelas</span></div><div class="mon-b"><i style="--h:42%"></i><i style="--h:68%"></i><i style="--h:92%"></i><i style="--h:58%"></i><i style="--h:76%"></i></div><div class="mon-f"><span>Rata-rata 82</span><span>Lulus 91%</span></div></div>', cls: 'mon-wrap' }) +
         box({ x: 120, y: -104, w: 80, d: 40, h: 8, c: '#1b1b1b', z: 0 }) +
-        box({ x: -170, y: 40, w: 104, d: 118, h: 12, c: '#c4f55d', top: '<div class="xl"><b>XLSX</b></div>' }) +
+        box({ x: -170, y: 40, w: 104, d: 118, h: 12, c: '#c4f55d', top: '<div class="xl"><b>.csv</b></div>' }) +
         bb({ x: -118, y: 100, z: 46, w: 54, h: 54, html: '<div class="dl-bb"><svg viewBox="0 0 24 24"><path d="M12 4v11M7 11l5 5 5-5M5 20h14"/></svg></div>' }));
 
     /* lembar bergerak: satu lembar utama + lembar latar (aliran jawaban siswa) */
