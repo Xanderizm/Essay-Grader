@@ -49,26 +49,6 @@
     </form>
 </div>
 
-<!-- Input Google Form URL untuk Akun (jika diperlukan pada pengaturan profil) -->
-<div class="card" style="margin-bottom:16px; max-width:560px">
-    <h3 style="margin-top:0">Pengaturan Google Form</h3>
-    <form method="POST" action="{{ route('account.update') ?? '#' }}">
-        @csrf
-        @method('PUT')
-        <div class="field">
-            <label for="form_url">Link Google Form</label>
-            <input id="form_url" type="url" name="form_url" value="{{ old('form_url', $user->form_url ?? '') }}" placeholder="https://docs.google.com/forms/..." pattern="https://.*docs\.google\.com/forms/.*" required>
-        </div>
-        <button type="submit">Simpan Link</button>
-    </form>
-</div>
-
-<div class="card" style="margin-bottom:16px; max-width:560px">
-    <h3 style="margin-top:0">Unduh data saya</h3>
-    <p class="muted">Salinan akun, pertanyaan, rubrik, jawaban, dan nilai Anda dalam format JSON.</p>
-    <a class="btn" href="{{ route('account.export') }}">Unduh data</a>
-</div>
-
 <div class="card" style="max-width:560px; border-left:4px solid #9b1c1c">
     <h3 style="margin-top:0">Hapus akun</h3>
     <p class="muted">Akun dijadwalkan dihapus dalam 14 hari. Selama masa itu, masuk kembali akan membatalkannya. Setelah 14 hari, semua penilaian, jawaban, dan nilai dihapus permanen dan izin Google dicabut.</p>

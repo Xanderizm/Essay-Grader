@@ -6,7 +6,7 @@
     <p class="muted">Terakhir diperbarui: 23 Oktober 2026</p>
 
     <h3>Pengelola</h3>
-    <p>Layanan Penilai Esai Otomatis dikelola oleh Fadhlan Ilhami. Kontak: Ig: fadhilhmi.</p>
+    <p>Layanan Penilai Esai Otomatis dikelola oleh Fadhlan Ilhami. Kontak: Ig: @fadhilhmi.</p>
 
     <h3>Data yang kami proses</h3>
     <ul>
