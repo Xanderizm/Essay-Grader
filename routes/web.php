@@ -70,6 +70,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/exams/{exam}/activate', [ExamController::class, 'activate'])->name('exams.activate');
     Route::post('/exams/{exam}/close', [ExamController::class, 'close'])->name('exams.close');
     Route::post('/exams/{exam}/sync', [ExamController::class, 'sync'])->name('exams.sync');
+    Route::delete('/exams', [ExamController::class, 'bulkDestroy'])->name('exams.bulk-destroy');    
     Route::delete('/exams/{exam}', [ExamController::class, 'destroy'])->name('exams.destroy');
 
     Route::put('/questions/{question}', [QuestionController::class, 'update'])->name('questions.update');

@@ -75,7 +75,7 @@ class ExamController extends Controller
         $this->authorizeExam($exam);
 
         $questions = $exam->questions()->orderBy('order')->get();
-        $graded = StudentAnswer::whereIn('question_id', $questions->where('gform_item_type', 'paragraph')->pluck('id'))
+        $graded = StudentAnswer::whereIn('question_id', $questions->whereIn('gform_item_type', Question::TEXT_TYPES)->pluck('id'))
             ->where('processing_status', 'success')
             ->selectRaw('question_id, COUNT(*) AS c')->groupBy('question_id')->pluck('c', 'question_id');
 
@@ -142,8 +142,9 @@ class ExamController extends Controller
 
         foreach ($questions as $q) {
             $role   = $roles[$q->id] ?? $q->field_type;
-            $isText = $q->gform_item_type === 'paragraph';
-            $mode   = $isText ? (($modes[$q->id] ?? $q->grading_mode) ?: ($role === 'identity' ? 'non_scoring' : 'scoring')) : null;
+            $isText   = in_array($q->gform_item_type, Question::TEXT_TYPES, true);
+            $idleMode = $role === 'identity' ? ($q->gform_item_type === 'paragraph' ? 'non_scoring' : null) : 'scoring';
+            $mode     = $isText ? (($modes[$q->id] ?? $q->grading_mode) ?: $idleMode) : null;
 
             $changes = [];
             if ($role !== $q->field_type) { $changes['field_type'] = $role; $changes['role_detail'] = null; }
@@ -262,6 +263,25 @@ class ExamController extends Controller
         return redirect()->route('dashboard')->with('status', 'Penilaian dan seluruh datanya sudah dihapus permanen.');
     }
 
+    public function bulkDestroy(Request $request)
+    {
+        $data = $request->validate([
+            'ids'   => 'required|array|min:1|max:500',
+            'ids.*' => 'integer',
+        ]);
+
+        // Hanya milik pengguna ini; id milik orang lain diabaikan
+        $exams = Exam::where('user_id', auth()->id())->whereIn('id', $data['ids'])->get();
+
+        DB::transaction(fn () => $exams->each->delete());
+
+        $n = $exams->count();
+
+        return redirect()->route('dashboard')->with('status', $n > 0
+            ? "$n penilaian dan seluruh datanya sudah dihapus permanen."
+            : 'Tidak ada penilaian yang dihapus.');
+    }
+
     public function live(Request $request, Exam $exam)
     {
         $this->authorizeExam($exam);
@@ -298,7 +318,15 @@ class ExamController extends Controller
         }
 
         if (! $exam->questions()->scoring()->exists()) {
-            return 'Belum ada pertanyaan Paragraph dengan mode "Dinilai".';
+            return 'Belum ada pertanyaan Paragraf atau Jawaban singkat dengan mode "Dinilai".';
+        }
+
+        $noKey = $exam->questions()->scoring()->where('gform_item_type', 'short_answer')
+            ->where(fn ($q) => $q->whereNull('answer_key')->orWhere('answer_key', ''))
+            ->first();
+
+        if ($noKey) {
+            return 'Pertanyaan Jawaban singkat "' . Str::limit($noKey->question_text, 40) . '" berstatus "Dinilai" tetapi kunci jawabannya belum diisi.';
         }
 
         try {

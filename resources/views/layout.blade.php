@@ -534,14 +534,6 @@
                         </a>
                     @endif
                 @endif
-                @if($has('account.show'))
-                    <a href="{{ route('account.show') }}" 
-                       class="nav-dropdown-link @if(request()->routeIs('account.*')) active @endif"
-                       @click="open = false">
-                        <span>Akun Saya</span>
-                        <span class="muted" style="font-size:11px">{{ auth()->user()->name }}</span>
-                    </a>
-                @endif
 
                 <div class="nav-dropdown-divider"></div>
 

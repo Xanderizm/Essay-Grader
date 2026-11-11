@@ -21,6 +21,11 @@ class QuestionController extends Controller
             'grading_mode' => 'required|in:scoring,non_scoring',
         ]);
 
+        if ($data['grading_mode'] === 'scoring' && $question->gform_item_type === 'short_answer'
+            && trim((string) ($request->has('answer_key') ? $data['answer_key'] : $question->answer_key)) === '') {
+            return back()->withErrors(['status' => 'Pertanyaan Jawaban singkat berstatus "Dinilai" wajib punya kunci jawaban.']);
+        }
+
         $changes = ['grading_mode' => $data['grading_mode']];
         if ($request->has('answer_key')) {
             $changes['answer_key'] = trim((string) $data['answer_key']) ?: null;   // empty rubric is allowed
@@ -68,7 +73,7 @@ class QuestionController extends Controller
     private function authorizeQuestion(Question $question): void
     {
         abort_unless(
-            $question->gform_item_type === 'paragraph' && $question->exam->user_id === auth()->id(),
+            in_array($question->gform_item_type, Question::TEXT_TYPES, true) && $question->exam->user_id === auth()->id(),
             403
         );
     }

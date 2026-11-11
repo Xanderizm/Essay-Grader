@@ -283,10 +283,14 @@
                                 @endif
                                 <details>
                                     <summary class="muted" style="cursor:pointer">Detail Jawaban</summary>
-                                    <div class="muted"><b>Hasil:</b> K {{ $a->score_content }} &middot; L {{ $a->score_logic }} &middot; S {{ $a->score_structure }}</div>
+                                    @if($q->gform_item_type === 'short_answer')
+                                        <div class="muted"><b>Hasil:</b> {{ $a->is_overridden ? 'Disesuaikan ' . number_format($a->final_score, 1) : ($a->final_score >= 100 ? 'Benar' : 'Salah') }}</div>
+                                    @else
+                                        <div class="muted"><b>Hasil:</b> K {{ $a->score_content }} &middot; L {{ $a->score_logic }} &middot; S {{ $a->score_structure }}</div>
+                                    @endif
                                     <div class="two-col" style="margin-top:6px">
                                         <div><b>Jawaban</b><br>{!! nl2br(e($a->raw_answer)) !!}</div>
-                                        <div><b>Rubrik</b><br>{!! nl2br(e($q->answer_key ?: 'Tidak ada rubrik: AI menilai sendiri.')) !!}</div>
+                                        <div><b>{{ $q->gform_item_type === 'short_answer' ? 'Kunci jawaban' : 'Rubrik' }}</b><br>{!! nl2br(e($q->answer_key ?: 'Tidak ada rubrik: AI menilai sendiri.')) !!}</div>
                                     </div>
                                     @if($a->ai_analysis)<div style="margin-top:6px"><b>Alasan penilaian:</b><br>{{ \Illuminate\Support\Str::limit($a->ai_analysis, 180) }}</div>@endif
                                     @include('override_form', ['a' => $a])

@@ -2,8 +2,10 @@
 
 namespace App\Jobs;
 
+use App\Models\Question;
 use App\Models\StudentAnswer;
 use App\Services\EssayGraderService;
+use App\Services\ShortAnswerGrader;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldBeUniqueUntilProcessing;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -17,14 +19,14 @@ class ProcessEssayGrading implements ShouldQueue, ShouldBeUniqueUntilProcessing
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    private const BATCH_SIZE           = 5;   // jumlah jawaban per permintaan ke AI
+    private const BATCH_SIZE           = 5;   // jumlah jawaban esai per permintaan ke AI
     private const MAX_REQUESTS_PER_MIN = 3;   // batas permintaan ke AI per menit
     private const MAX_ATTEMPTS         = 6;   // percobaan maksimal per jawaban
 
     public int $tries = 1;
     public int $uniqueFor = 120;
 
-    public function handle(EssayGraderService $grader): void
+    public function handle(EssayGraderService $grader, ShortAnswerGrader $short): void
     {
         // Patuh pada batas permintaan per menit
         if (RateLimiter::tooManyAttempts('ai-grading', self::MAX_REQUESTS_PER_MIN)) {
@@ -52,9 +54,16 @@ class ProcessEssayGrading implements ShouldQueue, ShouldBeUniqueUntilProcessing
             return;
         }
 
-        RateLimiter::hit('ai-grading', 60);
-
         $question = $toGrade->first()->question;
+
+        // Jawaban singkat: pencocokan kunci lewat kode, AI hanya untuk sisa yang meragukan
+        if ($question->gform_item_type === 'short_answer') {
+            $this->gradeShortAnswers($question, $toGrade, $grader, $short);
+            return;
+        }
+
+        // Paragraf: analisis naratif penuh 3 parameter oleh AI
+        RateLimiter::hit('ai-grading', 60);
 
         $payload = $toGrade->map(fn ($a) => [
             'answer_id' => $a->id,
@@ -79,6 +88,77 @@ class ProcessEssayGrading implements ShouldQueue, ShouldBeUniqueUntilProcessing
         $this->scheduleNext(1);
     }
 
+    private function gradeShortAnswers(Question $question, $answers, EssayGraderService $grader, ShortAnswerGrader $short): void
+    {
+        $accepted = $short->acceptedAnswers((string) $question->answer_key);
+
+        if (! $accepted) {
+            StudentAnswer::whereIn('id', $answers->pluck('id'))->update([
+                'processing_status' => 'failed',
+                'last_error'        => 'Kunci jawaban belum diisi.',
+                'updated_at'        => now(),
+            ]);
+            $this->scheduleNext(1);
+            return;
+        }
+
+        $unresolved = [];
+
+        foreach ($answers as $answer) {
+            if (ShortAnswerGrader::normalize((string) $answer->raw_answer) === '') {
+                $this->saveShort($answer, $grader, false, 'Jawaban tidak berisi teks yang bisa dinilai.');
+                continue;
+            }
+
+            $method = $short->match((string) $answer->raw_answer, $accepted);
+
+            if ($method) {
+                $this->saveShort($answer, $grader, true, $short->label($method));
+            } else {
+                $unresolved[] = $answer;
+            }
+        }
+
+        if ($unresolved && ! config('grading.short_answer.ai_fallback', true)) {
+            foreach ($unresolved as $answer) {
+                $this->saveShort($answer, $grader, false, 'Tidak cocok dengan kunci jawaban.');
+            }
+            $unresolved = [];
+        }
+
+        if ($unresolved) {
+            RateLimiter::hit('ai-grading', 60);
+
+            try {
+                $verdict = $short->semanticCheck($question, $accepted, collect($unresolved));
+            } catch (\Throwable $e) {
+                $this->handleFailure(collect($unresolved), $e);
+                return;
+            }
+
+            foreach ($unresolved as $answer) {
+                $ok = $verdict[ShortAnswerGrader::normalize((string) $answer->raw_answer)] ?? null;
+
+                if ($ok === null) {
+                    $this->markRetry($answer, 'AI tidak mengembalikan keputusan untuk jawaban ini');
+                } else {
+                    $this->saveShort($answer, $grader, $ok, $ok ? 'Cocok secara makna menurut AI.' : 'Tidak cocok dengan kunci jawaban.');
+                }
+            }
+        }
+
+        $this->scheduleNext(1);
+    }
+
+    private function saveShort(StudentAnswer $answer, EssayGraderService $grader, bool $correct, string $note): void
+    {
+        $score = $correct ? 100 : 0;
+
+        $this->saveResult($answer, $grader, [
+            'content' => $score, 'logic' => $score, 'structure' => $score, 'analysis' => $note,
+        ]);
+    }
+
     private function saveResult(StudentAnswer $answer, EssayGraderService $grader, array $r): void
     {
         $summary = $grader->summarize($r['content'], $r['logic'], $r['structure']);
@@ -98,7 +178,7 @@ class ProcessEssayGrading implements ShouldQueue, ShouldBeUniqueUntilProcessing
         ]);
     }
 
-    /** Ambil sampai 5 jawaban pending untuk SATU pertanyaan yang sama, tandai "processing". */
+    /** Ambil jawaban pending untuk SATU pertanyaan yang sama (esai 5, jawaban singkat lebih banyak), tandai "processing". */
     private function claimBatch()
     {
         return DB::transaction(function () {
@@ -107,7 +187,8 @@ class ProcessEssayGrading implements ShouldQueue, ShouldBeUniqueUntilProcessing
                 ->where('updated_at', '<', now()->subMinutes(10))
                 ->update(['processing_status' => 'pending']);
 
-            $first = StudentAnswer::where('processing_status', 'pending')
+            $first = StudentAnswer::with('question')
+                ->where('processing_status', 'pending')
                 ->whereHas('question', fn ($q) => $q->scoring()->whereHas('exam', fn ($e) => $e->where('status', 'active')))
                 ->orderBy('id')
                 ->lockForUpdate()
@@ -117,11 +198,15 @@ class ProcessEssayGrading implements ShouldQueue, ShouldBeUniqueUntilProcessing
                 return collect();
             }
 
+            $limit = $first->question?->gform_item_type === 'short_answer'
+                ? (int) config('grading.short_answer.batch_size', 40)
+                : self::BATCH_SIZE;
+
             $batch = StudentAnswer::with('question')
                 ->where('processing_status', 'pending')
                 ->where('question_id', $first->question_id)
                 ->orderBy('id')
-                ->limit(self::BATCH_SIZE)
+                ->limit($limit)
                 ->lockForUpdate()
                 ->get();
 

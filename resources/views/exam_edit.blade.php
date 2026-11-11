@@ -61,7 +61,8 @@
 @php
     $pending       = in_array($exam->analysis_status, ['pending', 'analyzing'], true);
     $typeLabels    = \App\Models\Question::TYPE_LABELS;
-    $paragraphs    = $questions->where('gform_item_type', 'paragraph');
+    $paragraphs    = $questions->filter(fn ($q) => in_array($q->gform_item_type, \App\Models\Question::TEXT_TYPES, true)
+        && ! ($q->gform_item_type === 'short_answer' && $q->field_type === 'identity'));
 @endphp
 
 <p><a href="{{ route('dashboard') }}">&larr; Kembali</a></p>
@@ -207,13 +208,14 @@
     @endif
 
     <h3>Rubrik Penilaian</h3>
-    <p class="muted">Rubrik boleh dikosongkan; AI akan menilai sendiri berdasarkan isi jawaban. Pertanyaan yang ditandai "Tidak dinilai" hanya dicatat.</p>
+    <p class="muted">Paragraf: rubrik boleh dikosongkan, AI menilai sendiri. Jawaban singkat: kunci jawaban wajib diisi jika "Dinilai", dan dicocokkan otomatis tanpa analisis AI yang panjang. Kolom identitas responden (Nama, NIM, Email, dst.) tidak muncul di sini. Pertanyaan "Tidak dinilai" hanya dicatat.</p>
 
     @forelse($paragraphs as $q)
         <div class="card" style="margin-bottom:16px">
+            @php($isShort = $q->gform_item_type === 'short_answer')
             <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:16px; flex-wrap:wrap">
                 <div style="flex:1 1 320px">
-                    <b>{{ $q->question_text }}</b>
+                    <b>{{ $q->question_text }}</b> <span class="badge type-{{ $q->gform_item_type }}">{{ $typeLabels[$q->gform_item_type] ?? '' }}</span>
                     @if($q->description)<div class="muted">{{ $q->description }}</div>@endif
                 </div>
                 <div>
@@ -226,8 +228,11 @@
             </div>
 
             <div class="field" id="rubric-{{ $q->id }}" style="margin-top:14px" @if($q->grading_mode !== 'scoring') hidden @endif>
-                <label for="key-{{ $q->id }}">Rubrik penilaian (opsional)</label>
-                <textarea id="key-{{ $q->id }}" name="keys[{{ $q->id }}]" form="exam-form" style="min-height:110px" placeholder="Kosongkan agar AI menilai sendiri." data-locked="{{ $exam->status === 'active' ? 1 : 0 }}" @if($exam->status === 'active') readonly @endif>{{ $q->answer_key }}</textarea>
+                <label for="key-{{ $q->id }}">{{ $isShort ? 'Kunci jawaban (wajib, satu jawaban benar per baris)' : 'Rubrik penilaian (opsional)' }}</label>
+                <textarea id="key-{{ $q->id }}" name="keys[{{ $q->id }}]" form="exam-form" style="min-height:{{ $isShort ? 80 : 110 }}px" placeholder="{{ $isShort ? 'Contoh: Jawaban kunci utama, Jawaban benar 2 (baris baru), dst (baris baru untuk alternatif)' : 'Kosongkan agar AI menilai sendiri.' }}" data-locked="{{ $exam->status === 'active' ? 1 : 0 }}" @if($exam->status === 'active') readonly @endif>{{ $q->answer_key }}</textarea>
+                @if($isShort)
+                    <div class="muted" style="margin-top:4px">Huruf besar/kecil dan typo kecil diabaikan. Cocok dengan salah satu baris = benar (100), selain itu salah (0). AI hanya mengecek jawaban yang maknanya mungkin sama.</div>
+                @endif
             </div>
 
             <form method="POST" action="{{ route('questions.regrade', $q) }}" class="row-actions" data-ajax data-regrade-for="{{ $q->id }}" @if($q->grading_mode !== 'scoring') hidden @endif data-confirm="Semua jawaban pertanyaan ini akan dinilai ulang dan nilai lama diganti. Lanjutkan?">
@@ -236,7 +241,7 @@
             </form>
         </div>
     @empty
-        <div class="card muted">Belum ada pertanyaan bertipe Paragraf pada formulir ini, jadi belum ada rubrik yang bisa diatur.</div>
+        <div class="card muted">Belum ada pertanyaan Paragraf atau Jawaban singkat (selain identitas) pada formulir ini, jadi belum ada rubrik yang bisa diatur.</div>
     @endforelse
 @endif
 

@@ -30,7 +30,7 @@ class ResponseSyncService
         $responses = $this->google->listResponses($exam->user, $exam->gform_id, $since);
 
         $questions      = $exam->questions()->whereNotNull('gform_item_id')->get()->keyBy('gform_item_id');
-        $essayQuestions = $questions->where('gform_item_type', 'paragraph')->whereNotNull('grading_mode');
+        $essayQuestions = $questions->whereIn('gform_item_type', Question::TEXT_TYPES)->whereNotNull('grading_mode');
 
         $stats = ['fetched' => count($responses), 'new' => 0, 'queued' => 0];
 
@@ -76,7 +76,7 @@ class ResponseSyncService
                 $identity[$q->id] = $text;
                 if (in_array($q->gform_item_type, Question::COLUMN_TYPES, true)) { $keyParts[$q->id] = $text; }
             }
-            if ($q->gform_item_type === 'paragraph' && $q->grading_mode !== null) {
+            if (in_array($q->gform_item_type, Question::TEXT_TYPES, true) && $q->grading_mode !== null) {
                 $essays[$q->id] = $text;
             }
         }

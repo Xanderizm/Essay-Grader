@@ -16,6 +16,7 @@ class Question extends Model
     public const ROLE_LABELS = ['identity' => 'Identitas Responden', 'stimulus' => 'Stimulus Media', 'main' => 'Konten Utama'];
     public const IDENTITY_TYPES = ['short_answer', 'paragraph', 'multiple_choice', 'dropdown', 'checkbox', 'date', 'file_upload'];
     public const COLUMN_TYPES   = ['short_answer', 'dropdown', 'multiple_choice'];   // kolom tabel, sort, deteksi duplikat
+    public const TEXT_TYPES     = ['paragraph', 'short_answer'];                      // jenis yang diketik responden dan bisa dinilai
 
     public function scopeIdentityColumns($query)
     {
@@ -24,7 +25,7 @@ class Question extends Model
 
     public function scopeScoring($query)
     {
-        return $query->where('gform_item_type', 'paragraph')->where('grading_mode', 'scoring');
+        return $query->whereIn('gform_item_type', self::TEXT_TYPES)->where('grading_mode', 'scoring');
     }
 
     public function exam()

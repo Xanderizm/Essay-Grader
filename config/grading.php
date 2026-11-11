@@ -18,4 +18,11 @@ return [
         'Kurang'      => 0,
     ],
 
+    // Jawaban singkat: dicocokkan dengan kunci lewat kode dulu, AI hanya untuk sisanya
+    'short_answer' => [
+        'ai_fallback' => true,   // false = jawaban yang tidak cocok langsung salah, tanpa token sama sekali
+        'batch_size'  => 40,     // jawaban diproses per putaran job (murah, jadi lebih besar dari esai)
+        'extra_words' => 4,      // kata tambahan yang masih ditoleransi saat jawaban "memuat" kata kunci
+    ],
+
 ];
