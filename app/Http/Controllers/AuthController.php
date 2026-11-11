@@ -27,6 +27,10 @@ class AuthController extends Controller
             // Selalu ke Dashboard, bukan ke halaman yang dituju sebelumnya
             $request->session()->forget('url.intended');
 
+            \App\Models\Exam::where('user_id', $request->user()->id)
+                ->whereNotNull('gform_deleted_at')->whereNull('gform_dismissed_at')
+                ->update(['gform_dismissed_at' => now()]);
+
             $restored = $request->user()->cancelPendingDeletion();
             return redirect()->route('dashboard')->with('status', $restored ? 'Selamat datang kembali! Penghapusan akun Anda dibatalkan.' : null);
         }
@@ -103,6 +107,10 @@ class AuthController extends Controller
     public function logout(Request $request)
     {
         if ($user = Auth::user()) {
+            \App\Models\Exam::where('user_id', $user->id)
+                ->whereNotNull('gform_deleted_at')->whereNull('gform_dismissed_at')
+                ->update(['gform_dismissed_at' => now()]);
+
             $activeExamIds = \App\Models\Exam::where('user_id', $user->id)
                 ->where('status', 'active')
                 ->pluck('id');

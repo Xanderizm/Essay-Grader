@@ -165,7 +165,7 @@ class GoogleClient
                 => new RuntimeException('Izin Google kurang lengkap. Hubungkan ulang dan centang semua izin.', 403),
 
             in_array($r->status(), [403, 404], true)
-                => new RuntimeException('Form tidak ditemukan, atau akun Google yang terhubung (' . $user->google_email . ') tidak punya akses ke Form ini.', $r->status()),
+                => new FormGoneException('Form tidak ditemukan, atau akun Google yang terhubung (' . $user->google_email . ') tidak punya akses ke Form ini.', $r->status()),
 
             $r->status() === 429
                 => new RuntimeException('Terlalu banyak permintaan ke Google. Coba lagi sebentar lagi.', 429),
@@ -209,7 +209,7 @@ class GoogleClient
                     $r->status() === 429
                         => new RuntimeException('Terlalu banyak permintaan ke Google. Akan dicoba lagi pada penarikan berikutnya.', 429),
                     in_array($r->status(), [403, 404], true)
-                        => new RuntimeException('Jawaban Form tidak bisa dibaca: Form tidak ditemukan atau akses ditolak.', $r->status()),
+                        => new FormGoneException('Jawaban Form tidak bisa dibaca: Form tidak ditemukan atau akses ditolak.', $r->status()),
                     default
                         => new RuntimeException('Google Forms API membalas status ' . $r->status() . ': ' . mb_substr($body, 0, 200), $r->status()),
                 };

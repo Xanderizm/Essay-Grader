@@ -19,7 +19,7 @@ class ExamController extends Controller
 {
     public function index()
     {
-        $exams = Exam::where('user_id', auth()->id())->latest()->get();
+        $exams = Exam::where('user_id', auth()->id())->whereNull('gform_dismissed_at')->latest()->get();
 
         return view('dashboard', compact('exams'));
     }
@@ -299,6 +299,16 @@ class ExamController extends Controller
 
         if (! $exam->questions()->scoring()->exists()) {
             return 'Belum ada pertanyaan Paragraph dengan mode "Dinilai".';
+        }
+
+        try {
+            app(\App\Services\GoogleClient::class)->getForm($exam->user, $exam->gform_id);
+        } catch (\App\Services\FormGoneException $e) {
+            $exam->update(['gform_deleted_at' => now()]);
+
+            return 'Google Form ini sudah dihapus atau tidak dapat diakses, sehingga penilaian tidak bisa diaktifkan.';
+        } catch (\Throwable $e) {
+            // Error lain (jaringan, dll.) tidak dianggap form terhapus; ditangani oleh proses sinkronisasi
         }
 
         return null;

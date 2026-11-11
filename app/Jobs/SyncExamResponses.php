@@ -4,6 +4,7 @@ namespace App\Jobs;
 
 use App\Models\Exam;
 use App\Services\ResponseSyncService;
+use App\Services\FormGoneException;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -38,6 +39,12 @@ class SyncExamResponses implements ShouldQueue, ShouldBeUnique
 
         try {
             $sync->sync($exam);
+        } catch (FormGoneException $e) {
+            $exam->update([
+                'status'           => 'closed',
+                'gform_deleted_at' => now(),
+                'sync_error'       => 'Google Form sudah dihapus atau tidak dapat diakses. Penilaian dinonaktifkan otomatis.',
+            ]);
         } catch (\Throwable $e) {
             $exam->update(['sync_error' => mb_substr($e->getMessage(), 0, 500)]);
         }
