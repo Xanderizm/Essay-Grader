@@ -34,21 +34,36 @@
     .exam-card.card-amber .badge.ok   { background: var(--lime); }
     .exam-card.card-amber .badge.warn { background: rgba(255, 255, 255, .75); }
     .exam-card.card-pastel .btn { background: var(--dark-text); color: #fff; border-color: var(--dark-text); }
-    .exam-card.card-pastel .btn.btn-outline { background: rgba(255, 255, 255, .75); color: var(--dark-text); }
+    .exam-card.card-pastel .btn.btn-outline { background: rgba(255, 255, 255, .75); color: var(--dark-text); border-color: transparent; }
     .exam-card.card-pastel .btn:hover { box-shadow: 3px 3px 0 var(--dark-text); }
     .exam-card.card-pastel :focus-visible { outline-color: var(--dark-text); }
 
-    /* ---------- Hapus massal ---------- */
+    /* ---------- Shimmer Sweep: kilatan cahaya miring berkala pada card ujian AKTIF (.is-live) ---------- */
+    .exam-card.is-live::after {
+        content: ""; position: absolute; inset: 0; z-index: 1; border-radius: inherit; pointer-events: none;
+        background: linear-gradient(115deg, transparent 42%, rgba(255, 255, 255, .6) 50%, transparent 58%) no-repeat;
+        background-size: 200% 100%; background-position: 120% 0;
+        animation: card-shimmer 4.5s ease-in-out infinite;
+    }
+    .exam-card.card-dark.is-live::after { background-image: linear-gradient(115deg, transparent 42%, rgba(255, 255, 255, .2) 50%, transparent 58%); }
+    @keyframes card-shimmer {
+        0%   { background-position: 120% 0; }
+        30%  { background-position: -20% 0; }   /* menyapu dari kiri ke kanan */
+        100% { background-position: -20% 0; }   /* jeda sebelum kilatan berikutnya */
+    }
+    @media (prefers-reduced-motion: reduce) { .exam-card.is-live::after { animation: none; display: none; } }
+
+    /* ---------- Hapus/* Indikator form aktif: cincin cahaya massal ---------- */
     .dash-actions { display: flex; align-items: center; justify-content: flex-end; gap: 10px; flex-wrap: wrap; }
     .dash-actions > .btn { min-height: 40px; }
     .bulk-group { display: flex; align-items: center; gap: 10px; }
-    .bulk-trigger { min-width: 40px; min-height: 40px; padding: 0; background: var(--surface); color: #d92d20; border-color: var(--ink); }
+    .bulk-trigger { min-width: 40px; min-height: 40px; padding: 0; background: var(--surface); color: #d92d20; border-color: var(--line-2); }
     html[data-theme="dark"] .bulk-trigger:not(.is-delete) { color: #ff7b72; }
     .bulk-trigger.is-delete { padding: 0 18px; background: #d92d20; color: #fff; border-color: #d92d20; }
     .bulk-trigger.is-delete:hover { box-shadow: 3px 3px 0 var(--ink); }
     .bulk-all {
         display: inline-flex; align-items: center; gap: 8px; min-height: 40px; padding: 0 14px;
-        background: #fff; color: #1b1b1b; border: 1.5px solid var(--ink); border-radius: 10px;
+        background: #fff; color: #1b1b1b; border: 1.5px solid var(--line-2); border-radius: 10px;
         font: 700 12.5px var(--mono); cursor: pointer; user-select: none;
     }
     .bulk-check {
@@ -57,11 +72,15 @@
     }
     .bulk-check:checked {
         border-color: #d92d20;
-        background: #d92d20 url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12.5l4.5 4.5L19 7.5'/%3E%3C/svg%3E") center / 12px no-repeat;
+        background: #d92d20 url("data:image/svg+xml,%3Csvg xmlns='http://w3.org' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12.5l4.5 4.5L19 7.5'/%3E%3C/svg%3E") center / 12px no-repeat;
     }
     .bulk-check:focus-visible { outline: 2px solid #1b1b1b; outline-offset: 2px; }
     .bulk-bar { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin: -6px 0 14px; font: 400 12.5px var(--mono); color: var(--muted); }
     .bulk-bar b { color: var(--ink); }
+
+    .live-dot { display: inline-block; vertical-align: middle; width: 8px; height: 8px; margin-right: 6px; border-radius: 50%; background: currentColor; animation: live-pulse 1.4s ease-in-out infinite; }
+    @keyframes live-pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: .35; transform: scale(.7); } }
+    @media (prefers-reduced-motion: reduce) { .live-dot { animation: none; } }
 
     /* Lingkaran pilih di kartu: seluruh kartu bisa diklik saat mode pilih */
     .sel-overlay { position: absolute; inset: 0; z-index: 5; border-radius: inherit; cursor: pointer; }
@@ -93,6 +112,30 @@
     .bulk-item .muted { font-size: 12.5px; margin-top: 2px; }
     .bulk-item .bulk-active { font-size: 12.5px; margin-top: 2px; color: var(--err); font-weight: 700; }
     .bulk-box .dlg-actions { flex-shrink: 0; }
+
+    /* Sejajarkan tombol trash, chip "Semua", dan "Buat penilaian baru" (kotak identik, tanpa selisih box-model) */
+    @media (min-width: 821px) {
+        .dash-actions, .bulk-group { align-items: stretch; }
+        .dash-actions > .btn, .bulk-trigger, .bulk-all { box-sizing: border-box; height: 40px; min-height: 40px; margin: 0; line-height: 1; }
+        .bulk-trigger { display: inline-flex; align-items: center; justify-content: center; width: 40px; padding: 0; transform: none; }
+        .bulk-trigger.is-delete { width: auto; padding: 0 18px; }
+        .bulk-trigger:hover, .bulk-all:hover { transform: none; }
+    }
+    
+    /* Sejajarkan tombol trash, chip "Semua", dan "Buat penilaian baru" (kotak identik, tanpa selisih box-model) */
+    @media (min-width: 821px) {
+        .dash-actions, .bulk-group { align-items: stretch; }
+        .dash-actions > .btn, .bulk-trigger, .bulk-all { box-sizing: border-box; height: 40px; min-height: 40px; margin: 0; line-height: 1; }
+        .bulk-trigger { display: inline-flex; align-items: center; justify-content: center; width: 40px; padding: 0; transform: none; }
+        .bulk-trigger.is-delete { width: auto; padding: 0 18px; }
+        .bulk-trigger:hover, .bulk-all:hover { transform: none; }
+    }
+
+    /* Tombol Tutup Penilaian di card: form "transparan" agar tombol tetap sejajar dengan Kelola */
+    .exam-card .row-actions form { display: contents; }
+    .exam-card .btn.btn-stop,
+    .exam-card.card-pastel .btn.btn-stop { background: var(--coral); color: #7f1d1d; border-color: transparent; }
+    .exam-card .btn.btn-stop:hover { box-shadow: 3px 3px 0 #7f1d1d; }
 
     @media (max-width: 820px) {
         .exam-grid, .empty { grid-template-columns: 1fr; }
@@ -197,6 +240,7 @@
                 @php
                     $tone = ['lime', 'dark', 'sky', 'amber'][$i % 4];
                     $dark = $tone === 'dark';
+                    $live = $exam->status === 'active' && ! $exam->gform_deleted_at;
                 @endphp
                 <div>
                     @if($exam->gform_deleted_at)
@@ -204,7 +248,7 @@
                             Google Form ini sudah dihapus. Penilaian dinonaktifkan dan tidak bisa diaktifkan lagi.
                         </div>
                     @endif
-                    <article class="card exam-card {{ $dark ? 'card-dark' : 'card-pastel card-' . $tone }}"
+                    <article class="card exam-card {{ $dark ? 'card-dark' : 'card-pastel card-' . $tone }} {{ $live ? 'is-live' : '' }}"
                              :class="{ 'is-selected': isSel({{ $exam->id }}) }">
                         <div :inert="selecting">
                             <h3>{{ $exam->title ?? 'Menunggu analisis Form' }}</h3>
@@ -216,7 +260,7 @@
                                 @else
                                     <span class="badge warn">Menganalisis</span>
                                 @endif
-                                <span class="badge {{ $statusBadge[$exam->status] ?? '' }}">{{ $statusLabel[$exam->status] ?? $exam->status }}</span>
+                                <span class="badge {{ $statusBadge[$exam->status] ?? '' }}">@if($live)<span class="live-dot" aria-hidden="true"></span>@endif{{ $statusLabel[$exam->status] ?? $exam->status }}</span>
                                 <span class="badge">{{ $exam->submissions_count }} jawaban masuk</span>
                             </div>
                         </div>
@@ -225,6 +269,15 @@
                                 <a class="btn" href="{{ route('exams.show', $exam) }}">Lihat nilai</a>
                             @endif
                             <a class="btn {{ $dark ? 'btn-ghost' : 'btn-outline' }}" href="{{ route('exams.edit', $exam) }}">Kelola</a>
+                            @if($live)
+                                <form method="POST" action="{{ route('exams.close', $exam) }}"
+                                      data-confirm="Tutup penilaian &quot;{{ $exam->title ?? 'ini' }}&quot;? Jawaban baru dari Google Form tidak akan diambil lagi sampai Anda mengaktifkannya kembali."
+                                      data-confirm-title="Tutup Penilaian"
+                                      data-confirm-ok="Tutup Penilaian">
+                                    @csrf
+                                    <button type="submit" class="btn btn-stop">Tutup Penilaian</button>
+                                </form>
+                            @endif                            
                         </div>
 
                         <div class="sel-overlay" x-show="selecting" x-cloak role="checkbox" tabindex="0"

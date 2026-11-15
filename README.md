@@ -15,7 +15,7 @@ lengkap dengan tabel nilai, grafik sebaran, dan unduhan Excel.</p>
 </p>
 
 <p>
-<img src="https://img.shields.io/badge/AI-Groq-F55036?style=flat-square" alt="Groq AI">
+<img src="https://img.shields.io/badge/AI-Groq-F55036?style=flat-square" alt="Console groq API">
 <img src="https://img.shields.io/badge/Google%20Forms%20API-OAuth%202.0-7248B9?style=flat-square&logo=googleforms&logoColor=white" alt="Google Forms API">
 <img src="https://img.shields.io/badge/queue-database-lightgrey?style=flat-square" alt="Queue database">
 </p>

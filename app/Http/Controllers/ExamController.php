@@ -19,7 +19,15 @@ class ExamController extends Controller
 {
     public function index()
     {
-        $exams = Exam::where('user_id', auth()->id())->whereNull('gform_dismissed_at')->latest()->get();
+        $exams = Exam::where('user_id', auth()->id())
+            ->whereNull('gform_dismissed_at')
+            ->orderByRaw("CASE
+                WHEN status = 'active' AND gform_deleted_at IS NULL THEN 0
+                WHEN last_managed_at IS NOT NULL AND last_managed_at >= ? THEN 1
+                ELSE 2 END", [now()->subDays(14)])
+            ->orderByRaw('COALESCE(last_managed_at, created_at) DESC')
+            ->orderByDesc('id')
+            ->get();
 
         return view('dashboard', compact('exams'));
     }
@@ -73,6 +81,8 @@ class ExamController extends Controller
     public function edit(Exam $exam)
     {
         $this->authorizeExam($exam);
+
+        DB::table('exams')->where('id', $exam->id)->update(['last_managed_at' => now()]);
 
         $questions = $exam->questions()->orderBy('order')->get();
         $graded = StudentAnswer::whereIn('question_id', $questions->whereIn('gform_item_type', Question::TEXT_TYPES)->pluck('id'))
@@ -249,7 +259,11 @@ class ExamController extends Controller
     {
         $this->authorizeExam($exam);
 
-        $exam->update(['status' => 'closed']);
+        if ($exam->status !== 'active') {
+            return back()->with('status', 'Penilaian ini sudah tidak aktif.');
+        }
+
+        $exam->update(['status' => 'closed', 'last_managed_at' => now()]);
 
         return back()->with('status', 'Penilaian ditutup.');
     }

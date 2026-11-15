@@ -2,16 +2,16 @@
 <html lang="id">
 <head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta name="theme-color" content="#d8d8d4">
     <meta name="description" content="Nilai esai Google Form lebih cepat dengan bantuan AI. Keputusan akhir tetap di tangan anda.">
     <title>@yield('title', 'Essay Grader')</title>
     <link rel="icon" href="{{ asset('favicon.svg') }}" type="image/svg+xml">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
-    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://googleapis.com">
+    <link rel="preconnect" href="https://gstatic.com" crossorigin>
+    <link href="https://googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <script src="https://tailwindcss.com"></script>
     <script>
         tailwind.config = {
             darkMode: ['selector', '[data-theme="dark"]'],
@@ -135,8 +135,8 @@
         .nav a { padding: 6px 10px; border-radius: 8px; color: var(--ink); text-decoration: none; }
         .nav a:hover { background: var(--mist); }
         .nav a.active { background: var(--lime); color: var(--dark-text); }
-        .nav a.pill { border: 1.5px solid var(--ink); border-radius: 10px; padding: 7px 14px; background: var(--surface); margin-left: 8px; font-weight: 700; }
-        .nav a.pill.solid { background: var(--ink); color: var(--on-ink); margin-left: 0; }
+        .nav a.pill { border: 1.5px solid var(--line-2); border-radius: 10px; padding: 7px 14px; background: var(--surface); margin-left: 8px; font-weight: 700; }
+        .nav a.pill.solid { background: var(--ink); color: var(--on-ink); margin-left: 0; border-color: var(--ink); }
         .nav form { margin: 0; }
 
         .nav-desktop { display: flex; }
@@ -145,10 +145,10 @@
         .nav-user-box {
             display: inline-flex; align-items: center; gap: 6px;
             padding: 6px 12px; min-height: 42px; max-width: 155px;
-            border: 1.5px solid var(--ink); border-radius: 10px;
+            border: 1.5px solid var(--line-2); border-radius: 10px;
             background: var(--surface); color: var(--ink);
             text-decoration: none !important; font: 700 12.5px var(--display);
-            box-shadow: 0 2px 0 var(--ink); vertical-align: middle;
+            vertical-align: middle;
             transition: transform .12s, box-shadow .12s;
         }
         .nav-user-box:hover {
@@ -163,9 +163,9 @@
         .nav-hamburger-btn {
             display: inline-flex; align-items: center; justify-content: center;
             width: 44px; height: 44px; min-width: 44px; min-height: 44px; padding: 0;
-            border: 1.5px solid var(--ink); border-radius: 10px;
+            border: 1.5px solid var(--line-2); border-radius: 10px;
             background: var(--surface); color: var(--ink);
-            cursor: pointer; box-shadow: 0 2px 0 var(--ink);
+            cursor: pointer;
             transition: transform .12s, box-shadow .12s, background .15s;
         }
         .nav-hamburger-btn:hover {
@@ -203,13 +203,13 @@
         button, .btn {
             display: inline-flex; align-items: center; justify-content: center; gap: 8px;
             font: 700 12.5px/1 var(--mono); background: var(--ink); color: var(--on-ink);
-            border: 1.5px solid var(--ink); border-radius: 10px; padding: 11px 16px;
+            border: 1.5px solid transparent; border-radius: 10px; padding: 11px 16px;
             cursor: pointer; text-decoration: none; transition: transform .12s, box-shadow .12s;
         }
         button:hover, .btn:hover { transform: translate(-1px, -1px); box-shadow: 3px 3px 0 var(--lime); }
         button:active, .btn:active { transform: none; box-shadow: none; }
         button[disabled] { opacity: .5; cursor: not-allowed; }
-        .btn-outline { background: var(--surface); color: var(--ink); }
+        .btn-outline { background: var(--surface); color: var(--ink); border-color: var(--line-2); }
         .btn-lime { background: var(--lime); color: var(--dark-text); }
         .danger { background: var(--coral) !important; color: var(--dark-text) !important; }
         .linkbtn { background: none; color: var(--ink); border: 0; padding: 6px 10px; font-weight: 400; text-decoration: underline; text-decoration-color: var(--lime); text-decoration-thickness: 3px; text-underline-offset: 3px; }
@@ -300,6 +300,8 @@
             .topbar { top: 8px; margin: -8px -8px 10px; padding: 8px 10px; border-radius: 14px; gap: 8px; }
             .nav-desktop { display: none !important; }
             .nav-mobile-bar { display: flex !important; }
+            .nav-mobile-bar { gap: 6px; }
+            .nav-user-name { max-width: 72px; }
             button, .btn { min-height: 44px; padding: 10px 16px; }
             input, select, textarea { font-size: 14px; }
             .auth { grid-template-columns: 1fr; }
@@ -308,6 +310,56 @@
             .card { padding: 16px; border-radius: 14px; }
             .dlg-actions button { min-height: 44px; }
         }
+        /* ===== Audit mobile (hanya <= 820px; desktop tidak terpengaruh) ===== */
+        @media (min-width: 821px) { .nav-backdrop, .nav-sheet { display: none !important; } }
+        @media (max-width: 820px) {
+            main { min-width: 0; overflow-wrap: break-word; }
+            img, video { max-width: 100%; height: auto; }
+            input, select, textarea { font-size: 16px; }          /* mencegah zoom otomatis iOS saat fokus */
+            select { max-width: 100%; }
+            .nav-user-box { min-height: 44px; }
+
+            /* Menu: bottom sheet */
+            html.nav-lock { overflow: hidden !important; }
+            .nav-backdrop { position: fixed; inset: 0; z-index: 65; background: rgba(27, 27, 27, .5); -webkit-backdrop-filter: blur(3px); backdrop-filter: blur(3px); }
+            .nav-sheet {
+                position: fixed; left: 0; right: 0; bottom: 0; z-index: 70; max-width: 560px; margin: 0 auto;
+                max-height: 82vh; max-height: 82dvh; overflow-y: auto; overscroll-behavior: contain;
+                display: flex; flex-direction: column; gap: 6px;
+                padding: 8px 14px calc(16px + env(safe-area-inset-bottom, 0px));
+                background: var(--surface); border: 1.5px solid var(--ink); border-bottom: 0;
+                border-radius: 22px 22px 0 0; box-shadow: 0 -4px 0 var(--ink);
+            }
+            .nav-sheet-grab { display: block; width: 44px; height: 4px; margin: 2px auto 4px; border-radius: 4px; background: var(--line-2); }
+            .nav-sheet-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 2px 4px 8px; font: 700 14px var(--display); min-width: 0; }
+            .nav-sheet-head > span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+            .nav-sheet-close { width: 40px; height: 40px; min-height: 40px; padding: 0; font-size: 22px; line-height: 1; background: var(--surface); color: var(--ink); box-shadow: 0 2px 0 var(--ink); }
+            .nav-sheet .nav-dropdown-link { min-height: 52px; font-size: 15px; border: 1.5px solid transparent; }
+            .nav-sheet .nav-dropdown-link.active { border-color: var(--ink); }
+            .nav-sheet .nav-dropdown-btn { min-height: 52px; font-size: 13.5px; }
+
+            /* Footer, toast, dialog */
+            .foot { flex-direction: column; gap: 8px; }
+            .foot a { display: inline-block; padding: 6px 0; }
+            #toasts { left: 12px; right: 12px; max-width: none; bottom: calc(12px + env(safe-area-inset-bottom, 0px)); }
+            .dlg { width: calc(100% - 24px); }
+            .dlg-box { max-height: calc(100vh - 24px); max-height: calc(100dvh - 24px); overflow-y: auto; padding: 18px; }
+            .dlg-actions { flex-direction: column-reverse; }   /* tombol utama di atas, mudah dijangkau */
+            .dlg-actions button { width: 100%; }
+
+            /* Tabel bertumpuk (beri class "table-stack" pada <table>) */
+            .table-stack, .table-stack tbody, .table-stack tr, .table-stack td { display: block; }
+            .table-stack tr:has(> th) { display: none; }
+            .table-stack tr { padding: 10px 0; border-bottom: 1px solid var(--line); }
+            .table-stack tr:last-child { border-bottom: 0; }
+            .table-stack td { padding: 3px 0; border: 0; }
+            .table-stack td:first-child { font-weight: 700; }
+            .table-stack td[data-label]::before { content: attr(data-label); display: block; font: 700 11px var(--display); color: var(--muted); text-transform: uppercase; letter-spacing: .04em; }
+        }
+        @media (max-width: 480px) {
+            .nav-user-box { display: none; }        /* nama ada di header sheet; mencegah header meluap di layar 360px */
+        }
+        html[data-theme="dark"] .nav-sheet { border-color: rgba(236, 236, 232, .55); box-shadow: 0 -4px 0 rgba(236, 236, 232, .22); }
         @media (prefers-reduced-motion: reduce) {
             * { transition: none !important; scroll-behavior: auto !important; }
             html.theme-anim *, html.theme-anim *::before, html.theme-anim *::after { transition: none !important; }
@@ -325,10 +377,17 @@
         .strength.s1 { --w: 25%; --c: var(--coral); } .strength.s2 { --w: 50%; --c: var(--amber); }
         .strength.s3 { --w: 75%; --c: var(--sky); } .strength.s4 { --w: 100%; --c: var(--lime); }
 
-        /* Tombol mode terang/gelap: melayang di pojok kanan bawah, tetap di dalam batas kartu putih */
-        .theme-dock { position: sticky; bottom: 18px; height: 0; z-index: 45; pointer-events: none; }
-        .theme-btn { pointer-events: auto; position: absolute; right: 0; bottom: 0; width: 46px; height: 46px; padding: 0; border-radius: 50%; overflow: hidden;
-            background: var(--ink); color: var(--on-ink); box-shadow: 0 4px 0 var(--lime); }
+        /* Tombol mode terang/gelap: di bilah navigasi. Tinggi desktop disamakan lewat JS (--nav-btn), mobile 44px seperti hamburger */
+        .theme-btn { position: relative; flex-shrink: 0; width: var(--nav-btn, 32px); height: var(--nav-btn, 32px); min-width: 0; min-height: 0; padding: 0; border-radius: 50%; overflow: hidden;
+            background: var(--ink); color: var(--on-ink); }
+        .nav-mobile-bar .theme-btn { width: 44px; height: 44px; min-height: 44px; }
+
+        /* Transisi tinta (View Transitions): bawaan browser dimatikan, animasi dikendalikan theme-ink.js */
+        html.theme-ink::view-transition-group(root),
+        html.theme-ink::view-transition-old(root),
+        html.theme-ink::view-transition-new(root) { animation: none; mix-blend-mode: normal; }
+        html.theme-ink::view-transition-new(root) { clip-path: circle(0 at 50% 50%); }
+
         .theme-btn:hover { box-shadow: 0 4px 0 var(--lime), 0 0 0 4px color-mix(in srgb, var(--lime) 45%, transparent); transform: translate(0, -1px); }
         .theme-btn svg { position: absolute; width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;
             transition: transform .5s cubic-bezier(.5, 0, .2, 1), opacity .35s ease; }
@@ -403,6 +462,8 @@
         }
     </style>
     @stack('styles')
+
+    <script src="{{ asset('js/theme-ink.js') }}" defer></script>
 </head>
 <body>
 @php
@@ -413,11 +474,9 @@
     $hasActiveExams = auth()->check() && \App\Models\Exam::where('user_id', auth()->id())->where('status', 'active')->exists();
 @endphp
 <a class="skip" href="#isi">Lewati ke konten</a>
-<div class="shell">
-    <header class="topbar" 
-            x-data="{ open: false }" 
-            @keydown.escape.window="open = false" 
-            @click.outside="open = false">
+<div class="shell" x-data="{ open: false }" @keydown.escape.window="open = false"
+     x-effect="document.documentElement.classList.toggle('nav-lock', open)">
+    <header class="topbar">
         <div class="topbar-row flex items-center justify-between w-full gap-3">
             <a class="brand flex items-center gap-2.5 font-bold text-[17px] text-ink shrink-0 no-underline" href="{{ auth()->check() ? route('dashboard') : url('/') }}">
                 <span class="brand-mark w-[30px] h-[30px] grid place-items-center" aria-hidden="true">
@@ -428,6 +487,7 @@
 
             {{-- Desktop Navigation (Tampil di Desktop / Layar Lebar) --}}
             <nav class="nav nav-desktop hidden md:flex items-center gap-1 text-[12.5px]" aria-label="Menu utama">
+                @include('theme-toggle', ['tid' => 'theme-toggle'])                
                 @auth
                     <a href="{{ route('dashboard') }}" @class(['active' => request()->routeIs('dashboard', 'exams.*', 'questions.*', 'answers.*')]){!! $cur('dashboard', 'exams.*', 'questions.*', 'answers.*') !!}>Penilaian</a>
                     <a href="{{ route('google.index') }}" @class(['active' => request()->routeIs('google.*')]){!! $cur('google.*') !!}>Google</a>
@@ -458,6 +518,7 @@
 
             {{-- Mobile Bar (Tampil di Mobile: Kotak Nama User + Tombol Hamburger) --}}
             <div class="nav-mobile-bar flex md:hidden items-center gap-2">
+                @include('theme-toggle', ['tid' => null])
                 @auth
                     {{-- Kotak Nama Pengguna di sisi kanan berdampingan dengan hamburger menu --}}
                     @if($has('account.show'))
@@ -491,94 +552,56 @@
                 </button>
             </div>
         </div>
-
-        {{-- Dropdown Menu Navigasi Mobile (Alpine.js) --}}
-        <div x-show="open" 
-             x-cloak 
-             x-transition:enter="transition ease-out duration-200"
-             x-transition:enter-start="opacity-0 -translate-y-2 scale-98"
-             x-transition:enter-end="opacity-100 translate-y-0 scale-100"
-             x-transition:leave="transition ease-in duration-150"
-             x-transition:leave-start="opacity-100 translate-y-0 scale-100"
-             x-transition:leave-end="opacity-0 -translate-y-2 scale-98"
-             class="nav-mobile-dropdown"
-             role="menu"
-             aria-label="Menu navigasi mobile">
-            @auth
-                {{-- Menu Dashboard / Internal --}}
-                <a href="{{ route('dashboard') }}" 
-                   class="nav-dropdown-link @if(request()->routeIs('dashboard', 'exams.*', 'questions.*', 'answers.*')) active @endif"
-                   @click="open = false">
-                    <span>Penilaian</span>
-                    <span class="badge" style="font-size:10px">Ujian</span>
-                </a>
-                <a href="{{ route('google.index') }}" 
-                   class="nav-dropdown-link @if(request()->routeIs('google.*')) active @endif"
-                   @click="open = false">
-                    <span>Google</span>
-                    <span class="badge" style="font-size:10px">Koneksi</span>
-                </a>
-                @if(auth()->user()->is_admin)
-                    <a href="{{ route('keys.index') }}" 
-                       class="nav-dropdown-link @if(request()->routeIs('keys.*')) active @endif"
-                       @click="open = false">
-                        <span>Kunci AI</span>
-                        <span class="badge info" style="font-size:10px">Admin</span>
-                    </a>
-                    @if($has('admin.status'))
-                        <a href="{{ route('admin.status') }}" 
-                           class="nav-dropdown-link @if(request()->routeIs('admin.status')) active @endif"
-                           @click="open = false">
-                            <span>Status sistem</span>
-                            <span class="badge ok" style="font-size:10px">Admin</span>
-                        </a>
-                    @endif
-                @endif
-
-                <div class="nav-dropdown-divider"></div>
-
-                <form class="logout-form" method="POST" action="{{ route('logout') }}" data-has-active="{{ $hasActiveExams ? 1 : 0 }}">
-                    @csrf
-                    <button type="submit" class="nav-dropdown-btn danger">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
-                        <span>Keluar Akun</span>
-                    </button>
-                </form>
-            @else
-                {{-- Menu Publik / Landing Page --}}
-                <a href="{{ url('/') }}" 
-                   class="nav-dropdown-link @if(request()->is('/')) active @endif"
-                   @click="open = false">
-                    <span>Beranda</span>
-                </a>
-                <a href="{{ route('privacy') }}" 
-                   class="nav-dropdown-link @if(request()->routeIs('privacy')) active @endif"
-                   @click="open = false">
-                    <span>Privasi</span>
-                </a>
-                @if($has('terms'))
-                    <a href="{{ route('terms') }}" 
-                       class="nav-dropdown-link @if(request()->routeIs('terms')) active @endif"
-                       @click="open = false">
-                        <span>Ketentuan Layanan</span>
-                    </a>
-                @endif
-
-                <div class="nav-dropdown-divider"></div>
-
-                <div style="display:flex; flex-direction:column; gap:8px;">
-                    <a class="btn btn-outline" href="{{ route('login') }}" style="width:100%; justify-content:center; text-align:center;">
-                        Masuk
-                    </a>
-                    @if($signupOpen)
-                        <a class="btn btn-lime" href="{{ route('register') }}" style="width:100%; justify-content:center; text-align:center;">
-                            Daftar
-                        </a>
-                    @endif
-                </div>
-            @endauth
-        </div>
     </header>
+
+    {{-- Menu mobile: bottom sheet (dijangkau jempol), di luar header agar backdrop menutupi seluruh layar --}}
+    <div class="nav-backdrop" x-show="open" x-cloak x-transition.opacity @click="open = false" aria-hidden="true"></div>
+    <nav class="nav-sheet" x-show="open" x-cloak role="dialog" aria-modal="true" aria-label="Menu navigasi"
+         x-transition:enter="transition ease-out duration-200" x-transition:enter-start="translate-y-full" x-transition:enter-end="translate-y-0"
+         x-transition:leave="transition ease-in duration-150" x-transition:leave-start="translate-y-0" x-transition:leave-end="translate-y-full">
+        <span class="nav-sheet-grab" aria-hidden="true"></span>
+        <div class="nav-sheet-head">
+            <span>@auth {{ auth()->user()->name }} @else Menu @endauth</span>
+            <button type="button" class="nav-sheet-close" @click="open = false" aria-label="Tutup menu">&times;</button>
+        </div>
+        @auth
+            <a href="{{ route('dashboard') }}" class="nav-dropdown-link @if(request()->routeIs('dashboard', 'exams.*', 'questions.*', 'answers.*')) active @endif" @click="open = false"><span>Penilaian</span><span class="badge" style="font-size:10px">Ujian</span></a>
+            <a href="{{ route('exams.create') }}" class="nav-dropdown-link @if(request()->routeIs('exams.create')) active @endif" @click="open = false"><span>Buat penilaian baru</span><span class="badge ok" style="font-size:10px">Baru</span></a>
+            <a href="{{ route('google.index') }}" class="nav-dropdown-link @if(request()->routeIs('google.*')) active @endif" @click="open = false"><span>Google</span><span class="badge" style="font-size:10px">Koneksi</span></a>
+            @if(auth()->user()->is_admin)
+                <a href="{{ route('keys.index') }}" class="nav-dropdown-link @if(request()->routeIs('keys.*')) active @endif" @click="open = false"><span>Kunci AI</span><span class="badge info" style="font-size:10px">Admin</span></a>
+                @if($has('admin.status'))
+                    <a href="{{ route('admin.status') }}" class="nav-dropdown-link @if(request()->routeIs('admin.status')) active @endif" @click="open = false"><span>Status sistem</span><span class="badge ok" style="font-size:10px">Admin</span></a>
+                @endif
+            @endif
+            @if($has('account.show'))
+                <a href="{{ route('account.show') }}" class="nav-dropdown-link @if(request()->routeIs('account.*')) active @endif" @click="open = false"><span>Akun saya</span></a>
+            @endif
+
+            <div class="nav-dropdown-divider"></div>
+
+            <form class="logout-form" method="POST" action="{{ route('logout') }}" data-has-active="{{ $hasActiveExams ? 1 : 0 }}">
+                @csrf
+                <button type="submit" class="nav-dropdown-btn danger">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+                    <span>Keluar Akun</span>
+                </button>
+            </form>
+        @else
+            <a href="{{ url('/') }}" class="nav-dropdown-link @if(request()->is('/')) active @endif" @click="open = false"><span>Beranda</span></a>
+            <a href="{{ route('privacy') }}" class="nav-dropdown-link @if(request()->routeIs('privacy')) active @endif" @click="open = false"><span>Privasi</span></a>
+            @if($has('terms'))
+                <a href="{{ route('terms') }}" class="nav-dropdown-link @if(request()->routeIs('terms')) active @endif" @click="open = false"><span>Ketentuan Layanan</span></a>
+            @endif
+
+            <div class="nav-dropdown-divider"></div>
+
+            <a class="btn btn-outline nav-dropdown-btn" href="{{ route('login') }}">Masuk</a>
+            @if($signupOpen)
+                <a class="btn btn-lime nav-dropdown-btn" href="{{ route('register') }}">Daftar</a>
+            @endif
+        @endauth
+    </nav>
 
     <main id="isi">
         @if(session('status'))
@@ -586,14 +609,6 @@
         @endif
         @yield('content')
     </main>
-
-    {{-- Tombol mode terang/gelap: ada di semua halaman, pilihan tersimpan di peramban --}}
-    <div class="theme-dock">
-        <button type="button" class="theme-btn" id="theme-toggle" aria-label="Ganti ke mode gelap" aria-pressed="false">
-            <svg class="i-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
-            <svg class="i-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
-        </button>
-    </div>
 
     <footer class="foot">
         <span>Nilai dari AI adalah bantuan penilaian. Keputusan akhir ada pada pembuat.</span>
@@ -635,30 +650,60 @@
     })();
     // Mode terang/gelap
     (function () {
-        var root = document.documentElement, btn = document.getElementById('theme-toggle');
+        var root = document.documentElement;
+        var btns = [].slice.call(document.querySelectorAll('.js-theme-toggle'));
         var meta = document.querySelector('meta[name="theme-color"]');
-        if (!btn) { return; }
+        if (!btns.length) { return; }
+        var winOpts = window.egSignal ? { passive: true, signal: egSignal() } : { passive: true };
+
         function current() { return root.getAttribute('data-theme') === 'dark' ? 'dark' : 'light'; }
         function sync() {
             var dark = current() === 'dark';
-            btn.setAttribute('aria-pressed', dark ? 'true' : 'false');
-            btn.setAttribute('aria-label', dark ? 'Ganti ke mode terang' : 'Ganti ke mode gelap');
+            btns.forEach(function (b) {
+                b.setAttribute('aria-pressed', dark ? 'true' : 'false');
+                b.setAttribute('aria-label', dark ? 'Ganti ke mode terang' : 'Ganti ke mode gelap');
+            });
             if (meta) { meta.setAttribute('content', dark ? '#0d0d0c' : '#d8d8d4'); }
         }
         sync();
-        btn.addEventListener('click', function () {
-            var next = current() === 'dark' ? 'light' : 'dark';
-            root.classList.add('theme-anim');
-            root.setAttribute('data-theme', next);
-            try { localStorage.setItem('eg-theme', next); } catch (e) {}
-            sync();
-            window.dispatchEvent(new CustomEvent('themechange', { detail: next }));
-            setTimeout(function () { root.classList.remove('theme-anim'); }, 520);
+
+        // Tinggi tombol di nav desktop = tinggi tautan di sebelahnya (persis, berapa pun fontnya)
+        function fit() {
+            var link = document.querySelector('.nav-desktop > a');
+            var navBtn = document.querySelector('.nav-desktop .js-theme-toggle');
+            if (!link || !navBtn || !link.offsetHeight) { return; }
+            navBtn.style.setProperty('--nav-btn', link.getBoundingClientRect().height + 'px');
+        }
+        fit();
+        window.addEventListener('resize', fit, winOpts);
+        if (document.fonts && document.fonts.ready) { document.fonts.ready.then(fit); }
+
+        btns.forEach(function (btn) {
+            btn.addEventListener('click', function () {
+                var next = current() === 'dark' ? 'light' : 'dark';
+                var r = btn.getBoundingClientRect();
+
+                function apply() {
+                    root.setAttribute('data-theme', next);
+                    try { localStorage.setItem('eg-theme', next); } catch (e) {}
+                    sync();
+                    window.dispatchEvent(new CustomEvent('themechange', { detail: next }));
+                }
+
+                // Transisi tinta dari posisi tombol
+                if (window.egInkTransition && window.egInkTransition(r.left + r.width / 2, r.top + r.height / 2, apply)) { return; }
+
+                // Cadangan (tanpa View Transitions / gerak dikurangi): perubahan warna halus seperti sebelumnya
+                root.classList.add('theme-anim');
+                apply();
+                setTimeout(function () { root.classList.remove('theme-anim'); }, 520);
+            });
         });
+
         // Tab lain berganti tema: ikuti
         window.addEventListener('storage', function (e) {
             if (e.key === 'eg-theme' && (e.newValue === 'dark' || e.newValue === 'light')) { root.setAttribute('data-theme', e.newValue); sync(); }
-        });
+        }, window.egSignal ? { signal: egSignal() } : undefined);
     })();
     // Tombol mata: tampilkan atau sembunyikan password
     document.addEventListener('click', function (e) {

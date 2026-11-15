@@ -17,6 +17,7 @@
     .top-actions .btn-group { display: flex; gap: 8px; align-items: center; }
     .chart-bar { display: flex; align-items: center; gap: 8px; margin-bottom: 0; }
     .chart-bar select { min-width: 180px; }
+    .chart-bar #grup-filter { max-width: 240px; }
 
     /* Hasil & Ringkasan Kotak Grafik */
     .results-top { display: grid; grid-template-columns: minmax(0, 1fr) minmax(280px, 380px); gap: 14px; align-items: stretch; margin-bottom: 12px; }
@@ -102,7 +103,8 @@
         .top-actions { flex-direction: column; align-items: stretch; gap: 10px; }
         .top-actions .btn-group { flex-direction: column; width: 100%; }
         .top-actions .btn-group .btn { width: 100%; min-height: 44px; text-align: center; }
-        .chart-bar { width: 100%; }
+        .chart-bar { width: 100%; flex-direction: column; align-items: stretch; }
+        .chart-bar #grup-filter { max-width: none; }
         .chart-bar select { width: 100%; min-height: 44px; }
         .toolbar { flex-direction: column; align-items: stretch; gap: 12px; }
         .toolbar > div { width: 100%; }
@@ -114,6 +116,72 @@
         .summary-stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(80px, 1fr)); gap: 10px; }
         #results-table { min-width: 620px; }
     }
+
+    @media (max-width: 820px) {
+        /* 1) Jarak atas: konten tidak menempel / tertutup header sticky */
+        .exam-back { margin-top: 14px; }
+        html { scroll-padding-top: 92px; }
+        #live-root, #live-root [id] { scroll-margin-top: 92px; }
+
+        /* 2) Toolbar: susun rapat, tanpa ruang kosong */
+        .toolbar { flex-direction: column; align-items: stretch; flex-wrap: nowrap; gap: 10px; margin: 10px 0 12px; }
+        .toolbar > div { width: 100%; }
+        .toolbar label { display: block; margin: 0 0 6px; }
+
+        .sort-badge-container { width: 100%; gap: 8px; }
+        .sort-badge-container select { flex: 1 1 auto; min-width: 0; min-height: 44px; }
+        .respondent-badge { flex: 0 0 auto; height: 44px; padding: 0 12px; font-size: 12.5px; }
+
+        /* penyebab celah besar: flex-basis 280px menjadi TINGGI saat kolom */
+        .toolbar-search { flex: 0 0 auto; width: 100%; max-width: 100%; justify-content: stretch; gap: 8px; margin: 0; }
+        .toolbar-search input { flex: 1 1 auto; min-width: 0; max-width: none; min-height: 44px; margin: 0; }
+        .toolbar-search button,
+        .toolbar-search .btn { flex: 0 0 auto; min-height: 44px; padding-inline: 18px; margin: 0; }
+
+        /* 3) Kartu tabel: tanpa padding ganda, tidak ada yang terpotong */
+        .table-card { padding: 0; margin-inline: 0; border-radius: 16px; -webkit-overflow-scrolling: touch; overscroll-behavior-x: contain; }
+        #results-table { min-width: 620px; }
+        #results-table th,
+        #results-table td { padding: 10px 12px; }
+        #results-table th select { min-width: 120px; max-width: 160px; margin: 0; }
+        #results-table td[colspan] { white-space: normal; text-align: left; padding: 14px 16px; }
+        .question-cell { min-width: 180px; }
+    }
+
+    @media (max-width: 820px) {
+        /* Judul & teks keterangan */
+        h2 { font-size: 20px; line-height: 1.25; }
+        .exam-back, .exam-back a { font-size: 13px; }
+        p.muted, .muted { font-size: 12px; line-height: 1.5; }
+        .badge { font-size: 10.5px; padding: 2px 7px; }
+
+        /* Ringkasan */
+        .summary-stats-grid > div .muted { font-size: 11px; }
+        .summary-stats-grid b { font-size: 18px !important; }
+        .summary-footer-info { font-size: 11px; }
+
+        /* Toolbar: label, select, input, placeholder, tombol */
+        .toolbar label { font-size: 12px; }
+        .toolbar select,
+        .toolbar-search input,
+        .toolbar-search button,
+        .toolbar-search .btn { font-size: 13px; }
+        .toolbar-search input::placeholder { font-size: 12.5px; }
+        .sort-badge-container select { padding-block: 0; }
+        .respondent-badge { font-size: 12px; }
+
+        /* Tombol aksi atas & dropdown grafik */
+        .top-actions .btn-group .btn,
+        .chart-bar select { font-size: 13px; }
+
+        /* Tabel */
+        #results-table th,
+        #results-table td { font-size: 12px; }
+        #results-table th select { font-size: 12.5px; min-height: 38px; }
+        #results-table td strong { font-size: 14px; }
+        #results-table summary { font-size: 11.5px; }
+        #results-table td[colspan] { font-size: 12px; }
+    }
 </style>
 @endpush
 @section('content')
@@ -124,7 +192,7 @@
     $failed  = $counts['failed'] ?? 0;
 @endphp
 
-<p><a href="{{ route('dashboard') }}">&larr; Kembali</a></p>
+<p class="exam-back"><a href="{{ route('dashboard') }}">&larr; Kembali</a></p>
 <h2>{{ $exam->title }}</h2>
 
 @if($errors->any())
@@ -150,6 +218,18 @@
         </div>
 
         <div class="chart-bar">
+            @if($groupFields->isNotEmpty())
+                <select id="grup-filter" aria-label="Filter kelompok responden">
+                    <option value="">Semua</option>
+                    @foreach($groupFields as $g)
+                        <optgroup label="{{ $g['label'] }}">
+                            @foreach($g['options'] as $key => $label)
+                                <option value="{{ $g['id'] }}|{{ $key }}" @selected($group === $g['id'] . '|' . $key)>{{ $label }}</option>
+                            @endforeach
+                        </optgroup>
+                    @endforeach
+                </select>
+            @endif
             <select id="chart-item">
                 @foreach($labels as $id => $label)<option value="{{ $id }}">{{ $label }}</option>@endforeach
             </select>
@@ -159,12 +239,12 @@
     <div class="results-top">
         <div class="card summary-card-content" style="margin-bottom:0">
             <div class="summary-stats-grid">
-                <div><div class="muted">Peserta</div><b style="font-size:22px">{{ $rows->count() }}</b></div>
-                <div><div class="muted">Rata-rata</div><b style="font-size:22px">{{ $classAverage !== null ? number_format($classAverage, 1) : '-' }}</b></div>
+                <div><div class="muted">Responden</div><b style="font-size:22px" data-sum="count">{{ $rows->count() }}</b></div>
+                <div><div class="muted">Rata-rata</div><b style="font-size:22px" data-sum="avg">{{ $classAverage !== null ? number_format($classAverage, 1) : '-' }}</b></div>
                 @foreach($distribution as $label => $total)
                     <div>
                         <div class="muted"><span class="badge {{ $badge[$label] ?? '' }}">{{ $label }}</span></div>
-                        <b style="font-size:22px">{{ $total }}</b>
+                        <b style="font-size:22px" data-sum="cat:{{ $label }}">{{ $total }}</b>
                     </div>
                 @endforeach
             </div>
@@ -199,15 +279,19 @@
         <input type="hidden" name="kolom" value="{{ $colId }}">
         @if($all)<input type="hidden" name="semua" value="1">@endif
         <div>
-            <label for="urut">Urutkan (A-Z)</label>
+            <label for="urut">Urutkan</label>
             <div class="sort-badge-container">
                 <select id="urut" name="urut">
-                    @foreach($identityFields as $f)
-                        <option value="{{ $f->id }}" @selected((string) $sort === (string) $f->id)>{{ $f->question_text }}</option>
-                    @endforeach
                     <option value="nilai" @selected($sort === 'nilai')>Nilai tertinggi</option>
+                    @if($sortFields->isNotEmpty())
+                        <optgroup label="Data diri (A-Z)">
+                            @foreach($sortFields as $f)
+                                <option value="{{ $f->id }}" @selected((string) $sort === (string) $f->id)>{{ $f->question_text }}</option>
+                            @endforeach
+                        </optgroup>
+                    @endif
                 </select>
-                <div class="respondent-badge">{{ $rows->count() }} responden</div>
+                <div class="respondent-badge"><span id="resp-count">{{ $rows->count() }}</span>&nbsp;responden</div>
             </div>
         </div>
         <div class="toolbar-search">
@@ -229,7 +313,7 @@
             <a href="{{ route('exams.show', ['exam' => $exam, 'urut' => $sort, 'kolom' => $colId]) }}">Hanya yang terbaru</a></p>
     @endif
 
-    <div class="card" style="overflow-x:auto">
+    <div class="card table-card" style="overflow-x:auto">
         <table id="results-table">
             <tr>
                 <th style="text-align: left;">
@@ -253,7 +337,9 @@
                 <tr data-row
                     data-search="{{ mb_strtolower(collect($s->identity ?? [])->implode(' ')) }}"
                     data-avg="{{ $row['average'] ?? -1 }}"
-                    @foreach($identityFields as $f) data-i-{{ $f->id }}="{{ mb_strtolower((string) (($s->identity ?? [])[$f->id] ?? '')) }}" @endforeach>
+                    data-cat="{{ $row['category'] }}"
+                    @foreach($groupFields as $g) data-g-{{ $g['id'] }}="{{ mb_strtolower(trim((string) (($s->identity ?? [])[$g['id']] ?? ''))) }}" @endforeach
+                    @foreach($sortFields as $f) data-i-{{ $f->id }}="{{ mb_strtolower((string) (($s->identity ?? [])[$f->id] ?? '')) }}" @endforeach>
                     <td>
                         @foreach($identityFields as $f)
                             <span data-col="{{ $f->id }}" @if($f->id !== $colId) hidden @endif>{{ ($s->identity ?? [])[$f->id] ?? '-' }}</span>
@@ -328,7 +414,7 @@
             @empty
                 <tr><td colspan="{{ $questions->count() + 3 }}" class="muted">Belum ada jawaban masuk.</td></tr>
             @endforelse
-            <tr id="no-match" hidden><td colspan="{{ $questions->count() + 3 }}" class="muted">Tidak ada responden yang cocok dengan pencarian.</td></tr>
+            <tr id="Tidak ada responden yang cocok dengan pencarian atau filter." hidden><td colspan="{{ $questions->count() + 3 }}" class="muted">Tidak ada responden yang cocok dengan pencarian.</td></tr>
         </table>
     </div>
     </div>

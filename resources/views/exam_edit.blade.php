@@ -29,10 +29,10 @@
         .dlg-x { background: none; color: var(--ink); border: 0; padding: 4px 8px; font-size: 22px; line-height: 1; box-shadow: none; }
         .dlg-x:hover { background: var(--mist); box-shadow: none; transform: none; }
         .dlg-options { display: grid; gap: 10px; }
-        .dlg-opt { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; width: 100%; text-align: left; padding: 12px 14px; background: #fff; color: var(--ink); font-weight: 400; line-height: 1.4; border-radius: 12px; }
+        .dlg-opt { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; width: 100%; text-align: left; padding: 12px 14px; background: #fff; color: var(--ink); font-weight: 400; line-height: 1.4; border-radius: 12px; border-color: var(--line-2); }
         .dlg-opt b { font: 700 14px var(--display); }
         .dlg-opt span { font-size: 12px; color: var(--muted); }
-        .dlg-opt-primary { background: var(--lime); }
+        .dlg-opt-primary { background: var(--lime); border-color: transparent; }
         .dlg-opt-primary span { color: var(--ink); }
         .dlg-opt-danger { border-color: #9b1c1c; }
         .dlg-opt-danger b { color: #9b1c1c; }
@@ -55,6 +55,77 @@
             .row-actions { flex-direction: column; align-items: stretch; gap: 8px; }
             .row-actions > *, .row-actions form { width: 100%; margin: 0; }
             .row-actions button, .row-actions .btn { width: 100%; text-align: center; min-height: 44px; }
+        }
+
+        /* Tombol aksi Kelola Ujian: jarak, tinggi, dan radius seragam (12px = gap-3) */
+        .manage-actions { gap: 12px; align-items: stretch; }
+        .manage-actions > form { margin: 0; display: flex; }
+        .manage-actions button { min-height: 40px; padding: 0 18px; border-radius: 10px; }
+        .manage-actions [hidden] { display: none !important; }
+        .manage-actions #save-note { align-self: center; }
+        .manage-actions #save-note:empty { display: none; }
+        @media (max-width: 680px) {
+            .manage-actions { flex-direction: column; gap: 12px; }
+            .manage-actions > * { width: 100%; }
+            .manage-actions button { width: 100%; min-height: 44px; }
+        }
+
+        @media (max-width: 820px) {
+            .card table .badge[class*="type-"] { min-width: 0 !important; max-width: none !important; width: auto !important; }
+            div:has(> select[data-mode-toggle]) { flex: 1 1 100%; }
+            select[data-mode-toggle] { width: 100%; }
+        }
+
+        @media (max-width: 820px) {
+            /* Judul & teks umum */
+            h2 { font-size: 20px; line-height: 1.25; }
+            h3 { font-size: 16px; }
+            p, .muted { font-size: 12px; line-height: 1.5; }
+            .card { padding: 14px; }
+            .badge { font-size: 10.5px; padding: 2px 7px; }
+
+            /* Tombol aksi (Kelola, Analisis ulang, Hapus, Nilai ulang, dst.) */
+            .manage-actions button,
+            .row-actions button,
+            .row-actions .btn,
+            .card .btn,
+            .card button[type="submit"] { font-size: 13px; }
+
+            /* Tabel Struktur Formulir */
+            .card table th,
+            .card table td { font-size: 12px; padding: 8px 10px; }
+            .card table td .badge[class*="type-"] {
+                font-size: 11px !important;
+                padding: 6px 10px !important;
+                min-width: 0 !important;
+                max-width: 100% !important;
+                border-radius: 10px !important;
+                white-space: normal !important;
+                line-height: 1.3;
+            }
+            .card table .badge-small { font-size: 10px !important; }
+
+            /* Rubrik: label, mode penilaian, textarea, placeholder */
+            .field label,
+            label.muted { font-size: 12px; }
+            select[data-mode-toggle] { font-size: 13px; min-height: 42px; }
+            .field textarea { font-size: 13px; line-height: 1.5; padding: 10px 12px; }
+            .field textarea::placeholder { font-size: 12px; }
+            .field .muted { font-size: 11.5px; }
+
+            /* Banner mode terproteksi & draf */
+            .card[style*="--amber"] { font-size: 12px; }
+            #draft-banner { font-size: 12px; }
+
+            /* Dialog */
+            .dlg-box { padding: 18px; }
+            .dlg-head h3 { font-size: 16px; }
+            .dlg-opt b { font-size: 13px; }
+            .dlg-opt span,
+            .dlg-warn,
+            .dlg-warn li { font-size: 11.5px; }
+            .dlg-actions button,
+            .btn-block { font-size: 13px; }
         }
     </style>
 @endpush
@@ -112,7 +183,7 @@
         @endif
     </p>
 
-    <div class="row-actions">
+    <div class="row-actions manage-actions">
         @if($exam->status === 'active')
             <form id="close-form" method="POST" action="{{ route('exams.close', $exam) }}">
                 @csrf

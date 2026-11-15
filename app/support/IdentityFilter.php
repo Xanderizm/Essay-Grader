@@ -31,4 +31,22 @@ final class IdentityFilter
 
         return $found;
     }
+
+    /** True jika kolom identitas berupa kategori bersama (Kelas, Jenjang, dll), bukan data unik per orang. */
+    public static function isGrouping(string $title): bool
+    {
+        $unique = array_flip(array_map('mb_strtolower', (array) config('identity.unique', [])));
+        $hint   = array_flip(array_map('mb_strtolower', (array) config('identity.group_hint', [])));
+
+        $text   = preg_replace('/\([^)]*\)|\[[^\]]*\]/u', ' ', mb_strtolower($title));
+        $tokens = preg_split('/[^\p{L}\p{N}]+/u', (string) $text, -1, PREG_SPLIT_NO_EMPTY);
+
+        $hasUnique = false;
+        foreach ($tokens as $t) {
+            if (isset($hint[$t])) { return true; }
+            if (isset($unique[$t])) { $hasUnique = true; }
+        }
+
+        return ! $hasUnique;
+    }
 }

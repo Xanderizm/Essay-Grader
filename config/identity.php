@@ -41,4 +41,19 @@ return [
         'please', 'enter', 'write', 'date',
     ],
 
+    // Kolom yang unik per orang: TIDAK boleh jadi filter grup
+    'unique' => [
+        'nama', 'name', 'firstname', 'lastname', 'surname', 'nim', 'npm', 'nis', 'nisn', 'nip', 'nidn', 'nik',
+        'nuptk', 'npwp', 'ktp', 'sim', 'paspor', 'passport', 'induk', 'email', 'mail', 'surel', 'username', 'akun',
+        'id', 'telepon', 'telp', 'tlp', 'hp', 'whatsapp', 'wa', 'telegram', 'instagram', 'ig', 'kontak', 'phone',
+        'mobile', 'alamat', 'address', 'absen', 'lahir', 'ttl', 'birthday', 'birth',
+    ],
+
+    // Jika judul memuat kata ini, tetap dianggap kategori (mis. "Nama Sekolah", "Nama Kelas")
+    'group_hint' => [
+        'kelas', 'jenjang', 'jurusan', 'prodi', 'fakultas', 'angkatan', 'semester', 'tingkat', 'rombel',
+        'peminatan', 'sekolah', 'kampus', 'universitas', 'institut', 'instansi', 'divisi', 'departemen',
+        'unit', 'kota', 'kabupaten', 'provinsi', 'class', 'school', 'department', 'city',
+    ],
+
 ];

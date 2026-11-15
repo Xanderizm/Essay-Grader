@@ -54,6 +54,12 @@
     .st-w.is-hl { --fill: var(--lime); }
     .st-reset .st-w { animation: none; }
     .st-sub .st-w { -webkit-text-stroke-width: .04em; }
+    @media (min-width: 821px) {
+    .st-w {
+        padding-bottom: .24em;
+        margin-bottom: -.24em;
+        }
+    }
     @keyframes st-draw  { to { clip-path: inset(-14% -4% -14% 0); } }
     @keyframes st-flood { to { background-size: 100% 100%; } }
     .hero .lead, .hero-actions { animation: rise .7s ease both; animation-delay: 1.1s; }
@@ -398,6 +404,14 @@
     html[data-theme="dark"] .spec::before { background: radial-gradient(96px circle at var(--bx, 50%) var(--by, 0%), rgba(196, 245, 93, .8), rgba(196, 245, 93, .2) 50%, transparent 74%); }
     html[data-theme="dark"] .spec::after { background: linear-gradient(105deg, transparent, rgba(196, 245, 93, .75), transparent); }
     html[data-theme="dark"] .sw-lime { background: var(--lime); color: #1b1b1b; border-color: #1b1b1b; box-shadow: 0 4px 0 rgba(0, 0, 0, .5); }
+    @media (min-width: 821px) {
+        .hero .st-w.is-hl {
+            -webkit-text-stroke-color: var(--lime);
+        }
+    }
+    html:not([data-theme="dark"]) .hero .st-w.is-hl {
+        filter: drop-shadow(0 1px 0 rgba(27, 27, 27, .35));
+    }
 
 /* Legenda mesin: hanya angka dalam lingkaran lime, rata tengah di bawah ilustrasi */
     .hm .hm-legend { justify-content: center; gap: 12px; }
@@ -466,6 +480,81 @@
         .hero .art, .hero > .hm { animation: none; }
         .sw, .sw-no, .logo, .hiw-seg b, .scale .badge { transition: none; }
     }
+
+    /* =========================================================
+       Mobile (<= 820px, saat menu hamburger aktif). Desktop tidak terpengaruh.
+       ========================================================= */
+    .m-cta { display: none; }
+
+    @media (max-width: 820px) {
+        /* Tanpa scroll horizontal */
+        html, body { overflow-x: clip; max-width: 100%; }
+        #isi { overflow-x: clip; }
+        .page-bg { inset: 0; }
+        .hero > *, .aspek > *, .band > *, .brands > * { min-width: 0; }
+
+        /* Hero: ringkas, CTA penuh lebar, mesin 3D disembunyikan */
+        .hero { gap: 0; padding: 2px 0 10px; }
+        .hero > .hm { display: none; }
+        .hero h1 { font-size: clamp(28px, 8.6vw, 36px); line-height: 1.08; margin-bottom: .35em; }
+        .st-sub { font-size: .5em; line-height: 1.35; margin-top: .55em; }
+        .hero .lead { font-size: 14.5px; line-height: 1.55; margin: 0; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+        .hero-actions { flex-direction: column; gap: 10px; margin-top: 18px; }
+        .hero-actions .btn { width: 100%; min-height: 52px; font-size: 14px; }
+        .hero-actions .btn[href="#cara-kerja"] { display: none; }
+
+        /* Showcase brand */
+        .brands { gap: 8px; padding: 12px 0; margin-top: 6px; }
+        .brands-label { font-size: 11.5px; text-align: center; white-space: normal; }
+        .cloud::before, .cloud::after { width: 36px; }
+        .cloud-set { gap: 30px; padding-right: 30px; }
+        .logo { font-size: 15px; gap: 8px; }
+        .logo-img { height: 22px; max-width: 100px; }
+        .logo-mark { width: 26px; height: 26px; border-radius: 8px; }
+        .logo-mark svg { width: 16px; height: 16px; }
+
+        /* Cara kerja: daftar langkah statis (adegan 3D dimatikan di JS) */
+        .hiw .sec-head { margin-bottom: 12px; }
+        .hiw:not(.is-js) .hiw-copy { gap: 12px; }
+        .hiw:not(.is-js) .hiw-step { padding: 16px; border: 1.5px solid var(--ink); border-radius: 14px; background: var(--surface); }
+        .hiw:not(.is-js) .hiw-step h3 { font-size: 21px; line-height: 1.15; margin: 0 0 8px; }
+        .hiw:not(.is-js) .hiw-step > p { margin: 0; font-size: 14px; line-height: 1.5; max-width: none; }
+        .hiw:not(.is-js) .hiw-eye { font-size: 11px; margin: 0 0 6px; }
+
+        /* Aspek penilaian: kartu geser (swipe) menggantikan tumpukan 3D */
+        .aspek { gap: 14px; margin-top: 28px; }
+        .scale { gap: 6px; font-size: 12px; }
+        .swap { display: flex; height: auto !important; gap: 12px; margin: 0 -14px; padding: 4px 14px 14px; overflow-x: auto;
+            scroll-snap-type: x mandatory; scroll-padding-inline: 14px; perspective: none; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
+        .swap::-webkit-scrollbar { display: none; }
+        .sw, .sw.is-drop { position: relative !important; inset: auto !important; flex: 0 0 84%; width: auto !important; height: auto !important; min-height: 220px;
+            transform: none !important; translate: none !important; filter: none !important; opacity: 1 !important; z-index: auto !important;
+            scroll-snap-align: start; transition: none !important; will-change: auto; }
+        .sw h3 { font-size: 20px; margin: 12px 0 6px; }
+        .sw p { font-size: 13.5px; line-height: 1.5; }
+
+        /* Brand reveal: teks dan tombol penuh, robot disembunyikan */
+        .band { margin-top: 28px; padding: 22px 18px; gap: 14px; border-radius: 18px; text-align: center; }
+        .band > :nth-child(n+2) { display: none; }
+        .band h2 { font-size: 22px; line-height: 1.2; }
+        .band p { font-size: 14px; max-width: none; }
+        .band .btn { width: 100%; min-height: 52px; justify-content: center; text-align: center; }
+
+        /* Bilah aksi bawah (zona jempol): muncul setelah tombol hero tergulir keluar layar */
+        .m-cta { display: flex; position: fixed; left: 0; right: 0; bottom: 0; z-index: 44; gap: 10px;
+            padding: 10px 14px calc(10px + env(safe-area-inset-bottom, 0px));
+            background: color-mix(in srgb, var(--paper) 94%, transparent);
+            -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px);
+            border-top: 1.5px solid var(--ink); transition: transform .28s ease, opacity .28s ease; }
+        .m-cta.is-off { transform: translateY(110%); opacity: 0; pointer-events: none; }
+        .m-cta .btn { flex: 1; min-height: 50px; font-size: 14px; }
+        .shell:has(.m-cta) .foot { padding-bottom: calc(84px + env(safe-area-inset-bottom, 0px)); }
+    }
+
+    @media (max-width: 400px) {
+        .hero h1 { font-size: 28px; }
+        .sw { flex-basis: 88%; }
+    }
 </style>
 @endpush
 
@@ -498,7 +587,7 @@
     $titleSub = 'Keputusan akhir tetap di tangan Anda.';
     $w = 0;
 @endphp
-
+@include('landing-mobile', ['part' => 'header'])
 <div class="page-bg" aria-hidden="true"><canvas></canvas></div>
 
 <section class="hero">
@@ -537,7 +626,7 @@
     $tools = [
         ['Akun Google', 'akun_google.svg', '<path d="M9 3v4M15 3v4"/><path d="M7 7h10v4a5 5 0 0 1-10 0V7z"/><path d="M12 16v5"/>'],
         ['Google Forms', 'google_forms.svg', '<rect x="5" y="3" width="14" height="18" rx="2.5"/><path d="M5 8h14"/><rect x="8" y="11" width="2.6" height="2.6" rx=".7"/><path d="M12.8 12.3H16"/><rect x="8" y="16" width="2.6" height="2.6" rx=".7"/><path d="M12.8 17.3H16"/>'],
-        ['Groq AI', 'groq_ai.svg', '<path d="M12 3l6 9-6 9-6-9z"/><path d="M6 12h12"/><ellipse cx="12" cy="12" rx="10" ry="3.4" transform="rotate(-24 12 12)"/>'],
+        ['Console groq API', 'groq_ai.svg', '<path d="M12 3l6 9-6 9-6-9z"/><path d="M6 12h12"/><ellipse cx="12" cy="12" rx="10" ry="3.4" transform="rotate(-24 12 12)"/>'],
         ['Microsoft Excel', 'microsoft_excel.svg', '<rect x="3.5" y="3.5" width="17" height="17" rx="3"/><path d="M3.5 9.5h17M3.5 15h17M9.5 9.5v11M15.5 9.5v11"/>'],
     ];
 @endphp
@@ -566,6 +655,8 @@
         </div>
     </div>
 </div>
+
+@include('landing-mobile', ['part' => 'sections'])
 
 <section id="cara-kerja" class="hiw" data-s="0" aria-labelledby="hiw-judul">
     <div class="sec-head">
@@ -634,7 +725,7 @@
                 <h3>Grafik &amp; <mark>Unduh Excel</mark></h3>
                 <p>Lihat statistik performa siswa via chart visual dan unduh rekapitulasi nilai ke format Excel.</p>
                 <div class="hw">
-                    <div class="hw-row"><b>Rekap nilai kelas</b><span class="mono">.xlsx</span></div>
+                    <div class="hw-row"><b>Rekap nilai kelas</b><span class="mono">.csv</span></div>
                     <span class="hw-btn lime">Unduh Excel</span>
                 </div>
             </article>
@@ -660,6 +751,7 @@
     var sec = document.getElementById('cara-kerja');
     var stage = sec && sec.querySelector('[data-hiw]');
     if (!stage) { return; }
+    if (window.matchMedia('(max-width: 820px)').matches) { return; }   // HP: daftar langkah statis, tanpa adegan 3D
     var world = stage.querySelector('.hiw-world'), scene = stage.querySelector('.hiw-scene');
     var scroller = stage.querySelector('.hiw-scroller'), hint = stage.querySelector('.hiw-hint');
     var steps = [].slice.call(stage.querySelectorAll('.hiw-step'));
@@ -1169,7 +1261,7 @@
     </div>
     @include('grader-bot')
 </section>
-
+@include('landing-mobile', ['part' => 'dock'])
 
 <script>
 (function () {
@@ -1215,6 +1307,7 @@
     (function () {
         var stack = $('[data-swap-stack]');
         if (!stack) { return; }
+        if (window.matchMedia('(max-width: 820px)').matches) { return; }   // HP: kartu digeser manual, tidak berputar sendiri
         var cards = $$('.sw', stack), n = cards.length;
         var front = 0, busy = false, timer = 0, hovering = false, focused = false, visible = true;
         var auto = !reduce;   // reduced-motion: tidak berputar sendiri, kartu tetap bisa dipilih lewat klik / Enter
@@ -1266,6 +1359,7 @@
     (function () {
         var host = $('.page-bg');
         if (!host) { return; }
+        if (window.matchMedia('(max-width: 820px)').matches) { host.classList.add('no-gl'); return; }   // HP: latar statis tanpa WebGL
         var canvas = $('canvas', host);
         var gl = null;
         try { gl = canvas.getContext('webgl', { antialias: false, alpha: false, powerPreference: 'low-power' }); } catch (e) {}
@@ -1454,4 +1548,13 @@
     })();
 })();
 </script>
+
+<script>
+(function () {
+    var bar = document.getElementById('m-cta'), cta = document.querySelector('.hero-actions');
+    if (!bar || !cta || !('IntersectionObserver' in window)) { if (bar) { bar.classList.remove('is-off'); } return; }
+    new IntersectionObserver(function (e) { bar.classList.toggle('is-off', e[0].isIntersecting); }).observe(cta);
+})();
+</script>
+
 @endsection

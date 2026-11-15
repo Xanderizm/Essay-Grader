@@ -74,7 +74,7 @@ class ResponseSyncService
 
             if ($q->field_type === 'identity') {
                 $identity[$q->id] = $text;
-                if (in_array($q->gform_item_type, Question::COLUMN_TYPES, true)) { $keyParts[$q->id] = $text; }
+                if ($q->gform_item_type === 'short_answer') { $keyParts[$q->id] = $text; }
             }
             if (in_array($q->gform_item_type, Question::TEXT_TYPES, true) && $q->grading_mode !== null) {
                 $essays[$q->id] = $text;

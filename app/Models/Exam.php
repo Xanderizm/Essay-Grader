@@ -11,6 +11,7 @@ class Exam extends Model
     protected $casts = [
         'form_structure' => 'array',
         'analyzed_at'    => 'datetime',
+        'last_managed_at' => 'datetime',
     ];
 
     public function user()

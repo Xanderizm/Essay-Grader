@@ -187,23 +187,29 @@ class FormAnalyzerService
      */
     public function classify(string $formTitle, array $fields, ?int $ownerId = null): array
     {
+        // Lapis 1 (tanpa AI): judul kolom yang jelas meminta data diri (Nama, NIM, Kelas, Program Studi, dst.),
+        // apa pun jenis isiannya: jawaban singkat, drop-down, pilihan ganda, atau tanggal
         $identity = [];
 
         foreach ($fields as $f) {
-            if ($f['type'] === 'short_answer' && IdentityFilter::isIdentity($f['title'])) {
+            if (in_array($f['type'], Question::IDENTITY_DETECT_TYPES, true) && IdentityFilter::isIdentity($f['title'])) {
                 $identity[$f['question_id']] = true;
             }
         }
 
+        // Lapis 2 (AI): isian teks dan drop-down yang belum terdeteksi. Pilihan ganda tidak dikirim agar hemat token.
         $candidates = array_values(array_filter($fields, fn ($f) =>
-            in_array($f['type'], Question::TEXT_TYPES, true) && ! isset($identity[$f['question_id']])));
+            ! isset($identity[$f['question_id']])
+            && in_array($f['type'], [...Question::TEXT_TYPES, 'dropdown'], true)));
 
         $ai = [];
 
         if ($candidates) {
+            $tipe = ['paragraph' => 'paragraf', 'short_answer' => 'jawaban_singkat', 'dropdown' => 'dropdown'];
+
             $payload = array_map(fn ($f) => [
                 'question_id' => $f['question_id'],
-                'tipe'        => $f['type'] === 'paragraph' ? 'paragraf' : 'jawaban_singkat',
+                'tipe'        => $tipe[$f['type']],
                 'title'       => mb_substr($f['title'], 0, 500),
                 'description' => mb_substr($f['description'], 0, 300),
             ], $candidates);
@@ -216,13 +222,15 @@ class FormAnalyzerService
             $isShort = $f['type'] === 'short_answer';
             $r       = $ai[$f['question_id']] ?? [];
 
-            if ($isShort && (isset($identity[$f['question_id']]) || ($r['identity'] ?? false))) {
+            $isIdentity = isset($identity[$f['question_id']])
+                || (($r['identity'] ?? false) && in_array($f['type'], ['short_answer', 'dropdown'], true));
+
+            if ($isIdentity) {
                 return $f + ['role' => 'identity', 'grading' => null, 'kind' => null, 'detail' => null, 'reason' => $r['reason'] ?? null];
             }
 
             return $f + [
                 'role'    => 'main',
-                // Jawaban singkat tanpa keputusan AI default "Tidak dinilai", karena Dinilai butuh kunci jawaban
                 'grading' => $isText ? (($r['need'] ?? ! $isShort) ? 'scoring' : 'non_scoring') : null,
                 'kind'    => $isText ? ($r['kind'] ?? 'question') : null,
                 'detail'  => null,

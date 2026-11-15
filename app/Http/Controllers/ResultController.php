@@ -7,6 +7,7 @@ use App\Models\Exam;
 use App\Models\StudentAnswer;
 use App\Services\EssayGraderService;
 use App\Support\LiveState;
+use App\Support\IdentityFilter;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
@@ -18,14 +19,19 @@ class ResultController extends Controller
     public function show(Request $request, Exam $exam, EssayGraderService $grader)
     {
         $this->authorizeExam($exam);
+        \Illuminate\Support\Facades\DB::table('exams')->where('id', $exam->id)->update(['last_managed_at' => now()]);
 
         $questions = $this->essayQuestions($exam);
         $all       = $request->boolean('semua');
 
         $identityFields = $exam->questions()->identityColumns()->orderBy('order')->get(['id', 'question_text']);
+        $sortFields     = $exam->questions()->identityFields()->orderBy('order')->get(['id', 'question_text', 'gform_item_type']);
         $firstId = $identityFields->first()?->id;
-        $sort    = (string) $request->query('urut', $firstId ? (string) $firstId : 'nilai');
-        $colId   = (int) $request->query('kolom', $firstId ?? 0);
+
+        // Default selalu Nilai tertinggi; nilai "urut" yang bukan kolom identitas form ini diabaikan
+        $sort = (string) $request->query('urut', 'nilai');
+        if ($sort !== 'nilai' && ! $sortFields->contains('id', (int) $sort)) { $sort = 'nilai'; }
+        $colId = (int) $request->query('kolom', $firstId ?? 0);
         $search  = trim((string) $request->query('cari', ''));
 
         [$rows, $hidden] = $this->buildRows($exam, $questions, $grader, $all);
@@ -44,6 +50,28 @@ class ResultController extends Controller
         ];
         $live = LiveState::snapshot($exam);
 
+            // Kolom identitas yang boleh jadi filter grup (kategori bersama, bukan nama/HP/dll)
+        $groupFields = $identityFields->map(function ($f) use ($rows) {
+            if (! IdentityFilter::isGrouping((string) $f->question_text)) { return null; }
+
+            $vals = $rows->map(fn ($r) => trim((string) (($r['submission']->identity ?? [])[$f->id] ?? '')))
+                ->filter(fn ($v) => $v !== '');
+            $keys = $vals->groupBy(fn ($v) => mb_strtolower($v))->map(fn ($g) => $g->first());
+
+            // Terlalu banyak variasi / semuanya unik = bukan kategori
+            if ($keys->isEmpty() || $keys->count() > 30 || ($vals->count() >= 5 && $keys->count() === $vals->count())) {
+                return null;
+            }
+
+            return [
+                'id'      => $f->id,
+                'label'   => $f->question_text,
+                'options' => $keys->sortBy(fn ($v) => $v, SORT_NATURAL | SORT_FLAG_CASE)->all(),
+            ];
+        })->filter()->values();
+
+        $group = (string) $request->query('grup', '');
+
         if ($search !== '') {
             $needle = mb_strtolower($search);
             $rows = $rows->filter(fn ($r) => collect($r['submission']->identity ?? [])
@@ -53,7 +81,15 @@ class ResultController extends Controller
         if ($sort === 'nilai') {
             $rows = $rows->sortByDesc(fn ($r) => $r['average'] ?? -1)->values();
         } else {
-            $rows = $rows->sortBy(fn ($r) => mb_strtolower((string) (($r['submission']->identity ?? [])[$sort] ?? '')), SORT_NATURAL)->values();
+            // A-Z alami ("Kelas 2" sebelum "Kelas 10"), yang kosong di akhir, nilai tertinggi sebagai pemisah
+            $val  = fn ($r) => mb_strtolower(trim((string) (($r['submission']->identity ?? [])[$sort] ?? '')));
+            $rows = $rows->sort(function ($a, $b) use ($val) {
+                [$x, $y] = [$val($a), $val($b)];
+                if (($x === '') !== ($y === '')) { return $x === '' ? 1 : -1; }
+                $c = strnatcmp($x, $y);
+
+                return $c !== 0 ? $c : (($b['average'] ?? -1) <=> ($a['average'] ?? -1));
+            })->values();
         }
 
         $counts = StudentAnswer::whereIn('question_id', $questions->pluck('id'))
@@ -75,7 +111,7 @@ class ResultController extends Controller
         return view('exam', compact(
             'exam', 'questions', 'rows', 'hidden', 'all', 'sort',
             'counts', 'distribution', 'classAverage', 'near', 'overridden',
-            'identityFields', 'colId', 'search', 'labels', 'chartData', 'live'
+            'identityFields', 'colId', 'search', 'labels', 'chartData', 'live', 'sortFields', 'groupFields', 'group'
         ));
     }
 

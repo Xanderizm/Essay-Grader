@@ -556,9 +556,52 @@
         }
     });
 
-    /* ---------- 2. Cari dan urut tabel nilai di browser ---------- */
+    /* ---------- 2. Cari, urut, dan filter grup tabel nilai di browser ---------- */
     var Results = {
-        state: { q: "", sort: null, col: null },
+        state: { q: "", sort: null, col: null, grp: "" },
+        inGroup: function (tr) {
+            var g = Results.state.grp;
+            if (!g) {
+                return true;
+            }
+            var i = g.indexOf("|");
+            return (
+                (tr.getAttribute("data-g-" + g.slice(0, i)) || "") ===
+                g.slice(i + 1)
+            );
+        },
+        stats: function (rows) {
+            var n = 0,
+                sum = 0,
+                withAvg = 0,
+                cats = {};
+            rows.forEach(function (tr) {
+                if (!Results.inGroup(tr)) {
+                    return;
+                }
+                n++;
+                var a = parseFloat(tr.getAttribute("data-avg"));
+                if (a >= 0) {
+                    sum += a;
+                    withAvg++;
+                }
+                var c = tr.getAttribute("data-cat");
+                if (c) {
+                    cats[c] = (cats[c] || 0) + 1;
+                }
+            });
+            $$("[data-sum]").forEach(function (el) {
+                var k = el.getAttribute("data-sum");
+                if (k === "count") {
+                    el.textContent = n;
+                } else if (k === "avg") {
+                    el.textContent = withAvg ? (sum / withAvg).toFixed(1) : "-";
+                } else if (k.indexOf("cat:") === 0) {
+                    el.textContent = cats[k.slice(4)] || 0;
+                }
+            });
+            return n;
+        },
         apply: function () {
             var table = $("#results-table");
             if (!table) {
@@ -574,6 +617,14 @@
                         sp.getAttribute("data-col") !== String(ic.value);
                 });
             }
+            var gs = $("#grup-filter");
+            if (gs) {
+                gs.value = Results.state.grp;
+                if (gs.value !== Results.state.grp) {
+                    Results.state.grp = "";
+                    gs.value = "";
+                }
+            }
             var body = table.tBodies[0],
                 rows = $$("tr[data-row]", body);
             var q = Results.state.q.toLowerCase().trim(),
@@ -581,8 +632,10 @@
 
             rows.forEach(function (tr) {
                 var hit =
-                    !q ||
-                    (tr.getAttribute("data-search") || "").indexOf(q) > -1;
+                    (!q ||
+                        (tr.getAttribute("data-search") || "").indexOf(q) >
+                            -1) &&
+                    Results.inGroup(tr);
                 tr.hidden = !hit;
                 if (hit) {
                     shown++;
@@ -608,19 +661,26 @@
             }
             var none = $("#no-match");
             if (none) {
-                none.hidden = !(q && shown === 0);
+                none.hidden = !((q || Results.state.grp) && shown === 0);
                 body.appendChild(none);
+            }
+            var inGrp = Results.stats(rows),
+                rc = $("#resp-count");
+            if (rc) {
+                rc.textContent = Results.state.grp ? inGrp : shown;
             }
         },
         url: function () {
             var u = new URL(location.href);
-            ["cari", "urut", "kolom"].forEach(function (k) {
+            ["cari", "urut", "kolom", "grup"].forEach(function (k) {
                 var v =
                     k === "cari"
                         ? Results.state.q
                         : k === "urut"
                           ? Results.state.sort
-                          : Results.state.col;
+                          : k === "grup"
+                            ? Results.state.grp
+                            : Results.state.col;
                 if (v) {
                     u.searchParams.set(k, v);
                 } else {
@@ -632,7 +692,8 @@
         init: function () {
             var qi = $("#cari-input"),
                 us = $("#urut"),
-                ic = $("#id-col");
+                ic = $("#id-col"),
+                gs = $("#grup-filter");
             if (ic) {
                 Results.state.col = ic.value;
             }
@@ -641,6 +702,9 @@
             }
             if (us) {
                 Results.state.sort = us.value;
+            }
+            if (gs) {
+                Results.state.grp = gs.value;
             }
             Results.apply();
             Chart.render();
@@ -666,6 +730,11 @@
         }
         if (e.target.id === "id-col") {
             Results.state.col = e.target.value;
+            Results.apply();
+            Results.url();
+        }
+        if (e.target.id === "grup-filter") {
+            Results.state.grp = e.target.value;
             Results.apply();
             Results.url();
         }

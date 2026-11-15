@@ -17,10 +17,17 @@ class Question extends Model
     public const IDENTITY_TYPES = ['short_answer', 'paragraph', 'multiple_choice', 'dropdown', 'checkbox', 'date', 'file_upload'];
     public const COLUMN_TYPES   = ['short_answer', 'dropdown', 'multiple_choice'];   // kolom tabel, sort, deteksi duplikat
     public const TEXT_TYPES     = ['paragraph', 'short_answer'];                      // jenis yang diketik responden dan bisa dinilai
+    public const IDENTITY_DETECT_TYPES = ['short_answer', 'dropdown', 'multiple_choice', 'date'];   // jenis yang dicek filter identitas
 
     public function scopeIdentityColumns($query)
     {
         return $query->where('field_type', 'identity')->whereIn('gform_item_type', self::COLUMN_TYPES);
+    }
+
+    // Semua kolom identitas (untuk opsi urutan), jenis apa pun kecuali upload file
+    public function scopeIdentityFields($query)
+    {
+        return $query->where('field_type', 'identity')->where('gform_item_type', '!=', 'file_upload');
     }
 
     public function scopeScoring($query)
