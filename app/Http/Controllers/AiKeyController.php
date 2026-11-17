@@ -9,23 +9,6 @@ use Illuminate\Support\Facades\Http;
 
 class AiKeyController extends Controller
 {
-    public function index()
-    {
-        $keys = AiApiKey::orderBy('id')->get()->map(function ($k) {
-            $plain = $this->readKey($k);
-
-            return [
-                'model'  => $k,
-                // Hanya 4 huruf awal dan 4 huruf akhir yang ditampilkan
-                'masked' => $plain
-                    ? substr($plain, 0, 4) . '••••••••' . substr($plain, -4)
-                    : '(tidak terbaca, hapus lalu masukkan ulang)',
-            ];
-        });
-
-        return view('keys', compact('keys'));
-    }
-
     public function store(Request $request)
     {
         $data = $request->validate([

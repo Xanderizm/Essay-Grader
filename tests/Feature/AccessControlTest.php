@@ -107,15 +107,19 @@ class AccessControlTest extends TestCase
 
     public function test_api_key_and_status_pages_are_admin_only(): void
     {
-        $this->actingAs(User::factory()->create())->get(route('keys.index'))->assertForbidden();
-        $this->actingAs(User::factory()->create())->get(route('admin.status'))->assertForbidden();
+        $user = User::factory()->create();
+
+        $this->actingAs($user)->get(route('admin.monitoring'))->assertForbidden();
+        $this->actingAs($user)->get(route('admin.status'))->assertForbidden();
+        $this->actingAs($user)->post(route('keys.store'), ['label' => 'x', 'api_key' => str_repeat('a', 30)])->assertForbidden();
 
         $admin = User::factory()->create(['is_admin' => true]);
 
-        $this->actingAs($admin)->get(route('keys.index'))->assertOk();
+        $this->actingAs($admin)->get(route('admin.monitoring'))->assertOk();
         $this->actingAs($admin)->get(route('admin.status'))->assertOk();
+        $this->actingAs($admin)->post(route('keys.store'), ['label' => 'x', 'api_key' => str_repeat('a', 30)])->assertRedirect();
+        $this->assertDatabaseHas('ai_api_keys', ['label' => 'x']);
     }
-
     public function test_override_recalculates_score_and_can_be_reverted(): void
     {
         $owner  = User::factory()->create();

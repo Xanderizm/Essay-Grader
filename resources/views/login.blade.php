@@ -2,6 +2,28 @@
 @section('title', 'Masuk')
 
 @section('content')
+@push('styles')
+<style>
+@media (max-width: 820px) {
+    .auth { min-height: 0 !important; align-items: flex-start !important; padding-top: 8px; }
+    .auth-card { padding: 18px !important; }
+    .auth-head h1 { font-size: 22px; line-height: 1.2; }
+    .auth-head p, .auth-foot, .auth-card .muted { font-size: 12px; line-height: 1.5; }
+    .auth-card p[style*="11.5px"] { font-size: 11px !important; }
+    .auth-card label { font-size: 12px; }
+    .auth-card input:not([type="checkbox"]),
+    .auth-card .btn-block,
+    .auth-card button[type="submit"] { font-size: 13px; min-height: 44px; }
+    .auth-card input::placeholder { font-size: 12px; }
+    .auth-card .btn-google { font-size: 13px; gap: 8px; }
+    .auth-card .btn-google svg { width: 18px; height: 18px; }
+    .auth-card .divider span { font-size: 11.5px; }
+    .auth-card .consent label { font-size: 11.5px; line-height: 1.45; }
+    .auth-card .error { font-size: 12px; }
+    .auth-card .name-row { gap: 10px; }
+}
+</style>
+@endpush
 @include('shape-grid')
 @include('auth-glass')
 @include('auth-mascots')

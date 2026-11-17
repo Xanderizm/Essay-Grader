@@ -156,6 +156,30 @@
         .sel-circle { top: 14px; bottom: auto; right: 14px; }
         .is-selecting .exam-card h3 { padding-right: 40px; }
     }
+
+    @media (max-width: 820px) {
+        .sec-head h1.tag { font-size: 20px !important; }
+        .exam-card { min-height: 0; gap: 14px; padding: 14px; }
+        .exam-card h3 { font-size: 16px; line-height: 1.3; margin-bottom: 8px; }
+        .exam-card .badge { font-size: 10.5px; padding: 2px 7px; }
+        .exam-card .btn,
+        .dash-actions > .btn,
+        .bulk-trigger { font-size: 13px; }
+        .bulk-all { font-size: 11.5px; }
+        .bulk-bar { font-size: 11.5px; }
+        .empty h2 { font-size: 18px; }
+        .empty p, .empty .muted { font-size: 12.5px; line-height: 1.5; }
+        .empty .btn { font-size: 13px; }
+        .exam-grid > div > [role="alert"] { font-size: 12px !important; padding: 8px 12px !important; }
+
+        /* Dialog hapus massal */
+        .bulk-box { padding: 16px; }
+        .dlg-head h3 { font-size: 16px; }
+        .dlg-head .muted, .dlg-warn p, .dlg-warn .muted { font-size: 12px; }
+        .bulk-item b { font-size: 13px; }
+        .bulk-item .muted, .bulk-item .bulk-active { font-size: 11.5px; }
+        .dlg-actions button { font-size: 13px; min-height: 44px; }
+    }
 </style>
 @endpush
 

@@ -13,6 +13,8 @@ use App\Http\Controllers\GoogleController;
 use App\Http\Controllers\QuestionController;
 use App\Http\Controllers\ResultController;
 use App\Http\Controllers\StatusController;
+use App\Http\Controllers\UserStatsController;
+use App\Http\Controllers\AdminMonitoringController;
 use App\Http\Middleware\EnsureAdmin;
 use Illuminate\Support\Facades\Route;
 
@@ -56,6 +58,7 @@ Route::middleware('auth')->group(function () {
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/dashboard', [ExamController::class, 'index'])->name('dashboard');
+    Route::get('/statistik', [UserStatsController::class, 'index'])->name('stats.index');
 
     Route::get('/exams/create', [ExamController::class, 'create'])->name('exams.create');
     Route::post('/exams', [ExamController::class, 'store'])->name('exams.store');
@@ -92,8 +95,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::middleware(EnsureAdmin::class)->group(function () {
         Route::get('/admin/status', [StatusController::class, 'index'])->name('admin.status');
         Route::post('/admin/mail-test', [StatusController::class, 'testMail'])->middleware('throttle:3,1')->name('admin.mail-test');
+        Route::get('/admin/monitoring', [AdminMonitoringController::class, 'index'])->name('admin.monitoring');
+        Route::post('/admin/monitoring/users', [AdminMonitoringController::class, 'storeUser'])
+            ->middleware('throttle:10,1')->name('admin.monitoring.users.store');
 
-        Route::get('/keys', [AiKeyController::class, 'index'])->name('keys.index');
         Route::post('/keys', [AiKeyController::class, 'store'])->name('keys.store');
         Route::post('/keys/{aiKey}/toggle', [AiKeyController::class, 'toggle'])->name('keys.toggle');
         Route::post('/keys/{aiKey}/test', [AiKeyController::class, 'test'])->name('keys.test');

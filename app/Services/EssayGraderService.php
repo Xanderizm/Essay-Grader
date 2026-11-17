@@ -19,7 +19,14 @@ class EssayGraderService
     {
         $content = $this->ai->callGroq(
             $this->systemPrompt(),
-            $this->userPrompt($question, $answers)
+            $this->userPrompt($question, $answers),
+            null,
+            [
+                'user_id'       => $question->exam?->user_id,
+                'exam_id'       => $question->exam_id,
+                'kind'          => 'essay',
+                'answers_count' => count($answers),
+            ]
         );
 
         return $this->parse($content, array_column($answers, 'answer_id'));

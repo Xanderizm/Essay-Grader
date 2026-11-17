@@ -3,6 +3,8 @@
 namespace App\Services;
 
 use App\Models\AiApiKey;
+use App\Models\AiUsageLog;
+use Illuminate\Http\Client\Response;
 use Illuminate\Support\Facades\Http;
 use RuntimeException;
 
@@ -77,7 +79,7 @@ PROMPT;
 
     // ---------- PANGGIL GROQ + ROTASI KEY ----------
 
-    public function callGroq(string $system, string $user, ?int $ownerId = null): string
+    public function callGroq(string $system, string $user, ?int $ownerId = null, array $ctx = []): string
     {
         $lastServerError = null;
 
@@ -103,17 +105,26 @@ PROMPT;
                 $triedKeyIds[] = $key->id;
                 $this->recordUsage($key);
 
-                $response = Http::withToken($key->api_key)
-                    ->timeout(60)
-                    ->post(self::URL, [
-                        'model'                 => $model,
-                        'temperature'           => 0.2,
-                        'max_completion_tokens' => 4096,
-                        'messages'              => [
-                            ['role' => 'system', 'content' => $system],
-                            ['role' => 'user',   'content' => $user],
-                        ],
-                    ]);
+                $t0 = microtime(true);
+
+                try {
+                    $response = Http::withToken($key->api_key)
+                        ->timeout(60)
+                        ->post(self::URL, [
+                            'model'                 => $model,
+                            'temperature'           => 0.2,
+                            'max_completion_tokens' => 4096,
+                            'messages'              => [
+                                ['role' => 'system', 'content' => $system],
+                                ['role' => 'user',   'content' => $user],
+                            ],
+                        ]);
+                } catch (\Throwable $e) {
+                    $this->logCall($key, $model, $ctx, $t0, null);   // timeout / koneksi putus
+                    throw $e;
+                }
+
+                $this->logCall($key, $model, $ctx, $t0, $response);
 
                 if ($response->status() === 429) {
                     $wait = (int) ($response->header('retry-after') ?: 60);
@@ -149,6 +160,30 @@ PROMPT;
         }
 
         throw new RuntimeException('Semua API key sedang limit atau tidak aktif', 429);
+    }
+
+    /** Catat setiap permintaan HTTP ke Groq (berhasil maupun gagal) ke ai_usage_logs. */
+    private function logCall(AiApiKey $key, string $model, array $ctx, float $t0, ?Response $r): void
+    {
+        $ok = $r?->successful() ?? false;
+        $pt = (int) ($r?->json('usage.prompt_tokens') ?? 0);
+        $ct = (int) ($r?->json('usage.completion_tokens') ?? 0);
+
+        AiUsageLog::record([
+            'user_id'           => $ctx['user_id'] ?? null,
+            'exam_id'           => $ctx['exam_id'] ?? null,
+            'ai_api_key_id'     => $key->id,
+            'kind'              => $ctx['kind'] ?? 'other',
+            'model'             => $model,
+            'used_shared_key'   => $key->user_id === null,
+            'prompt_tokens'     => $pt,
+            'completion_tokens' => $ct,
+            'total_tokens'      => (int) ($r?->json('usage.total_tokens') ?? ($pt + $ct)),
+            'answers_count'     => $ok ? (int) ($ctx['answers_count'] ?? 0) : 0,
+            'success'           => $ok,
+            'error_code'        => $ok ? null : ($r ? (string) $r->status() : 'exception'),
+            'latency_ms'        => (int) round((microtime(true) - $t0) * 1000),
+        ]);
     }
 
     private function recordUsage(AiApiKey $key): void

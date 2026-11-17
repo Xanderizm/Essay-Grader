@@ -490,9 +490,11 @@
                 @include('theme-toggle', ['tid' => 'theme-toggle'])                
                 @auth
                     <a href="{{ route('dashboard') }}" @class(['active' => request()->routeIs('dashboard', 'exams.*', 'questions.*', 'answers.*')]){!! $cur('dashboard', 'exams.*', 'questions.*', 'answers.*') !!}>Penilaian</a>
+                    @if($has('stats.index'))
+                        <a href="{{ route('stats.index') }}" @class(['active' => request()->routeIs('stats.*', 'admin.monitoring')]){!! $cur('stats.*', 'admin.monitoring') !!}>Statistik</a>
+                    @endif
                     <a href="{{ route('google.index') }}" @class(['active' => request()->routeIs('google.*')]){!! $cur('google.*') !!}>Google</a>
                     @if(auth()->user()->is_admin)
-                        <a href="{{ route('keys.index') }}" @class(['active' => request()->routeIs('keys.*')]){!! $cur('keys.*') !!}>Kunci AI</a>
                         @if($has('admin.status'))
                             <a href="{{ route('admin.status') }}" @class(['active' => request()->routeIs('admin.status')]){!! $cur('admin.status') !!}>Status sistem</a>
                         @endif
@@ -566,10 +568,12 @@
         </div>
         @auth
             <a href="{{ route('dashboard') }}" class="nav-dropdown-link @if(request()->routeIs('dashboard', 'exams.*', 'questions.*', 'answers.*')) active @endif" @click="open = false"><span>Penilaian</span><span class="badge" style="font-size:10px">Ujian</span></a>
+            @if($has('stats.index'))
+                <a href="{{ route('stats.index') }}" class="nav-dropdown-link @if(request()->routeIs('stats.*', 'admin.monitoring')) active @endif" @click="open = false"><span>Statistik</span><span class="badge info" style="font-size:10px">Data</span></a>
+            @endif
             <a href="{{ route('exams.create') }}" class="nav-dropdown-link @if(request()->routeIs('exams.create')) active @endif" @click="open = false"><span>Buat penilaian baru</span><span class="badge ok" style="font-size:10px">Baru</span></a>
             <a href="{{ route('google.index') }}" class="nav-dropdown-link @if(request()->routeIs('google.*')) active @endif" @click="open = false"><span>Google</span><span class="badge" style="font-size:10px">Koneksi</span></a>
-            @if(auth()->user()->is_admin)
-                <a href="{{ route('keys.index') }}" class="nav-dropdown-link @if(request()->routeIs('keys.*')) active @endif" @click="open = false"><span>Kunci AI</span><span class="badge info" style="font-size:10px">Admin</span></a>
+            @if(auth()->user()->is_admin)             
                 @if($has('admin.status'))
                     <a href="{{ route('admin.status') }}" class="nav-dropdown-link @if(request()->routeIs('admin.status')) active @endif" @click="open = false"><span>Status sistem</span><span class="badge ok" style="font-size:10px">Admin</span></a>
                 @endif

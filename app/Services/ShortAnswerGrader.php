@@ -103,7 +103,17 @@ class ShortAnswerGrader
             $items[]  = ['id' => $i, 'a' => $raw];
         }
 
-        $content = $this->ai->callGroq($this->systemPrompt(), $this->userPrompt($question, $accepted, $items));
+        $content = $this->ai->callGroq(
+            $this->systemPrompt(),
+            $this->userPrompt($question, $accepted, $items),
+            null,
+            [
+                'user_id'       => $question->exam?->user_id,
+                'exam_id'       => $question->exam_id,
+                'kind'          => 'short',
+                'answers_count' => $answers->count(),
+            ]
+        );
         $verdict = [];
 
         foreach ($this->parse($content, array_keys($ids)) as $id => $ok) {
