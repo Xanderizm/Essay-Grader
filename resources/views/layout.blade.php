@@ -491,8 +491,10 @@
                 @auth
                     <a href="{{ route('dashboard') }}" @class(['active' => request()->routeIs('dashboard', 'exams.*', 'questions.*', 'answers.*')]){!! $cur('dashboard', 'exams.*', 'questions.*', 'answers.*') !!}>Penilaian</a>
                     @if($has('stats.index'))
-                        <a href="{{ route('stats.index') }}" @class(['active' => request()->routeIs('stats.*', 'admin.monitoring')]){!! $cur('stats.*', 'admin.monitoring') !!}>monitoring</a>
-                    @endif
+                        <a href="{{ route('stats.index') }}" @class(['active' => request()->routeIs('stats.*', 'admin.monitoring')]){!! $cur('stats.*', 'admin.monitoring') !!}>
+                            {{ ((auth()->user()->is_admin ?? false) || (auth()->user()->role === 'admin') || (method_exists(auth()->user(), 'isAdmin') && auth()->user()->isAdmin())) ? 'Monitoring' : 'Statistik' }}
+                        </a>
+                    @endif                    
                     <a href="{{ route('google.index') }}" @class(['active' => request()->routeIs('google.*')]){!! $cur('google.*') !!}>Google</a>
                     @if($has('account.show'))
                         <a class="pill" href="{{ route('account.show') }}"{!! $cur('account.*') !!}>{{ auth()->user()->name }}</a>

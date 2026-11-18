@@ -282,7 +282,15 @@
     .hiw-step.on { opacity: 1; visibility: visible; translate: 0 0; transition-delay: .12s, .12s, 0s; }
     .hiw-eye { margin: 0 0 14px; font: 400 12px var(--mono); letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
     .hiw-step h3 { margin: 0 0 14px; font: 800 clamp(32px, 4.1vw, 52px)/1.02 var(--display); letter-spacing: -.035em; }
-    .hiw-step h3 mark { color: #1b1b1b; background: var(--lime); padding: 0 .14em; margin-left: -.04em; border-radius: .14em; -webkit-box-decoration-break: clone; box-decoration-break: clone; }
+    .hiw-step h3 mark { 
+        color: #1b1b1b; 
+        background: var(--lime); 
+        display: inline-block; 
+        line-height: 1.3; 
+        padding: 0.05em 0.22em; 
+        margin: 0.08em 0.02em; 
+        border-radius: 0.2em; 
+    }
     .hiw-step > p { margin: 0 0 18px; max-width: 40ch; font-size: 15.5px; line-height: 1.55; color: var(--muted); }
     .hw { width: min(100%, 330px); padding: 13px 15px; border-radius: 16px; background: var(--paper); border: 1.5px solid var(--ink); box-shadow: 4px 4px 0 var(--lime); font-size: 12.5px; color: var(--ink); }
     .hw-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; }

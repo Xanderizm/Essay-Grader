@@ -506,5 +506,43 @@
     @elseif($errors->any())
         document.getElementById('tambah-user').scrollIntoView({ block: 'start' });
     @endif
+
+    (function() {
+        // Interval 30 detik untuk Admin, 60 detik untuk Statistik
+        const INTERVAL_MS = 30000; 
+        let timer = null;
+        function refreshData() {
+            // Jangan request jika tab browser sedang tidak dibuka oleh pengguna
+            if (document.hidden) return;
+            fetch(window.location.href, {
+                headers: { 'X-Requested-With': 'XMLHttpRequest' }
+            })
+            .then(res => res.text())
+            .then(html => {
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(html, 'text/html');
+                // Ganti kontainer utama saja agar tidak flicker dan posisi scroll tetap aman
+                const freshContent = doc.querySelector('.adm-grid') || doc.querySelector('.stats-grid');
+                const currentContent = document.querySelector('.adm-grid') || document.querySelector('.stats-grid');
+                if (freshContent && currentContent) {
+                    currentContent.innerHTML = freshContent.innerHTML;
+                }
+            })
+            .catch(err => console.debug('Gagal auto-refresh:', err));
+        }
+        function startTimer() {
+            timer = setInterval(refreshData, INTERVAL_MS);
+        }
+        // Tangani saat tab ditinggal / dibuka kembali
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden) {
+                clearInterval(timer);
+            } else {
+                refreshData(); // Segarkan sekali saat tab kembali dibuka
+                startTimer();
+            }
+        });
+        startTimer();
+    })();
 </script>
 @endsection
