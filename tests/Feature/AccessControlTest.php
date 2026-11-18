@@ -110,16 +110,16 @@ class AccessControlTest extends TestCase
         $user = User::factory()->create();
 
         $this->actingAs($user)->get(route('admin.monitoring'))->assertForbidden();
-        $this->actingAs($user)->get(route('admin.status'))->assertForbidden();
+        $this->actingAs($user)->post(route('admin.mail-test'))->assertForbidden();
         $this->actingAs($user)->post(route('keys.store'), ['label' => 'x', 'api_key' => str_repeat('a', 30)])->assertForbidden();
 
         $admin = User::factory()->create(['is_admin' => true]);
 
         $this->actingAs($admin)->get(route('admin.monitoring'))->assertOk();
-        $this->actingAs($admin)->get(route('admin.status'))->assertOk();
         $this->actingAs($admin)->post(route('keys.store'), ['label' => 'x', 'api_key' => str_repeat('a', 30)])->assertRedirect();
         $this->assertDatabaseHas('ai_api_keys', ['label' => 'x']);
     }
+
     public function test_override_recalculates_score_and_can_be_reverted(): void
     {
         $owner  = User::factory()->create();

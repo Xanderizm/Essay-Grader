@@ -19,6 +19,16 @@
     .adm-btns form { margin: 0; }
     .adm-btns .btn-pill { white-space: nowrap; }
 
+    /* ===== Kartu Sistem & integrasi ===== */
+    .adm-sys { display: flex; flex-direction: column; justify-content: space-between; gap: 16px; flex: 1 1 auto; }
+    .adm-sys > div { padding-bottom: 14px; border-bottom: 1px solid var(--a-line); }
+    .adm-sys > div:last-child { padding-bottom: 0; border-bottom: 0; }
+    .adm-sys .hd { display: flex; align-items: center; justify-content: space-between; gap: 10px; font: 600 13px var(--mono); }
+    .adm-sys .adm-sub { margin: 6px 0 0; }
+    .adm-meter { height: 8px; border-radius: 99px; background: var(--a-line); overflow: hidden; margin-top: 10px; }
+    .adm-meter i { display: block; height: 100%; border-radius: 99px; background: var(--a-lime); }
+    .adm-sys form { margin: 10px 0 0; }
+    
     /* Mobile: Tes + Nonaktifkan berdampingan (2 kolom), Hapus lebar penuh di bawahnya */
     @media (max-width: 767px) {
         .adm .adm-bar { flex-direction: column; align-items: stretch; gap: 12px; }
@@ -132,8 +142,9 @@
     </section>
 
     <section class="adm-card adm-c4" style="--i:1">
-        <h2 class="adm-t">Aktivitas sistem <a href="{{ route('admin.status') }}" class="adm-chip mut">Status antrean →</a></h2>
+        <h2 class="adm-t">Aktivitas sistem <span class="adm-chip">Live</span></h2>
         <ul class="adm-act">
+            <li><span class="ic">◉</span><span class="tx">Pengguna<small>{{ $n($u['verified']) }} terverifikasi · {{ $n($u['admins']) }} admin</small></span><span class="rt">{{ $n($u['total']) }}<small style="color:var(--a-mut)">akun</small></span></li>
             <li><span class="ic">▶</span><span class="tx">Ujian aktif<small>{{ $n($e['draft']) }} draf · {{ $n($e['closed']) }} ditutup</small></span><span class="rt">{{ $n($e['active']) }}<small class="adm-acc">live</small></span></li>
             <li><span class="ic">✓</span><span class="tx">Esai berhasil diproses<small>log AI: {{ $n($a['logged']) }}</small></span><span class="rt">{{ $n($a['success']) }}<small class="adm-acc">selesai</small></span></li>
             <li><span class="ic">…</span><span class="tx">Antrean penilaian<small>menunggu giliran</small></span><span class="rt">{{ $n($a['pending']) }}<small style="color:var(--a-mut)">pending</small></span></li>
@@ -379,15 +390,15 @@
         @endif
     </section>
 
-    {{-- ===== BARIS 8 : Tambah user via backend ===== --}}
-    <section class="adm-card adm-c10" id="tambah-user" style="--i:11">
+    {{-- ===== BARIS 8 : Tambah user (6/10) + Sistem & integrasi (4/10) ===== --}}
+    <section class="adm-card adm-c6" id="tambah-user" style="--i:11">
         <h2 class="adm-t">Tambah user via backend</h2>
-        <form method="POST" action="{{ route('admin.monitoring.users.store') }}" autocomplete="off">
+        <form method="POST" action="{{ route('admin.monitoring.users.store') }}" autocomplete="off" class="adm-fcol" style="justify-content:space-between">
             @csrf
-            @if($errors->any() && ! $keyErr)
-                <div style="margin-bottom:12px">@foreach($errors->all() as $msg)<div class="error">{{ $msg }}</div>@endforeach</div>
-            @endif
-            <div class="adm-cols3">
+            <div>
+                @if($errors->any() && ! $keyErr)
+                    <div style="margin-bottom:12px">@foreach($errors->all() as $msg)<div class="error">{{ $msg }}</div>@endforeach</div>
+                @endif
                 <div class="field"><label for="np-name">Nama</label><input id="np-name" name="name" value="{{ old('name') }}" required maxlength="120"></div>
                 <div class="field"><label for="np-email">Email</label><input id="np-email" type="email" name="email" value="{{ old('email') }}" required></div>
                 <div class="field">
@@ -396,15 +407,51 @@
                         <input id="np-pass" type="password" name="password" required minlength="10" autocomplete="new-password">
                         <button type="button" id="gen-pw" class="btn-pill ghost" style="white-space:nowrap">Acak</button>
                     </div>
+                    <div class="adm-sub">Catat password sebelum menyimpan; tidak dapat ditampilkan lagi.</div>
                 </div>
             </div>
-            <div class="adm-sub">Catat password sebelum menyimpan; tidak dapat ditampilkan lagi.</div>
-            <div class="consent" style="margin-top:10px">
-                <input id="np-verified" type="checkbox" name="verified" value="1" @checked(old('verified', true))>
-                <label for="np-verified" style="font-weight:400">Tandai email sudah terverifikasi (jika tidak, email aktivasi dikirim)</label>
+            <div>
+                <div class="consent">
+                    <input id="np-verified" type="checkbox" name="verified" value="1" @checked(old('verified', true))>
+                    <label for="np-verified" style="font-weight:400">Tandai email sudah terverifikasi (jika tidak, email aktivasi dikirim)</label>
+                </div>
+                <div style="margin-top:14px"><button type="submit" class="btn-pill">Buat akun</button></div>
             </div>
-            <div style="margin-top:12px"><button type="submit" class="btn-pill">Buat akun</button></div>
         </form>
+    </section>
+
+    @php
+        $sys = $d['sys'];
+        $backupOk = $sys['backup_age'] !== null && $sys['backup_age'] < 172800;
+        $gPct = min(100, $sys['google']);
+    @endphp
+    <section class="adm-card adm-c4" style="--i:12">
+        <h2 class="adm-t">Sistem &amp; integrasi <span class="adm-chip mut">Admin</span></h2>
+        <div class="adm-sys">
+            <div>
+                <div class="hd"><span>Cadangan data</span><span class="adm-chip {{ $backupOk ? '' : 'bad' }}">{{ $backupOk ? 'Terbaru' : 'Perlu dibuat' }}</span></div>
+                <div class="adm-sub">
+                    @if($sys['backup_age'] === null)
+                        Belum ada cadangan. Jalankan <code>php artisan db:backup</code>.
+                    @else
+                        Terakhir {{ floor($sys['backup_age'] / 3600) }} jam lalu.
+                    @endif
+                </div>
+            </div>
+            <div>
+                <div class="hd"><span>Pengiriman email</span><span class="adm-chip {{ $sys['mail_driver'] === 'log' ? 'mut' : '' }}">{{ $sys['mail_driver'] }}</span></div>
+                <div class="adm-sub" style="overflow-wrap:anywhere">Pengirim: {{ $sys['mail_from'] }}@if($sys['mail_driver'] === 'log') · mode uji, email hanya ditulis ke log.@endif</div>
+                <form method="POST" action="{{ route('admin.mail-test') }}">
+                    @csrf
+                    <button type="submit" class="btn-pill ghost">Kirim email uji</button>
+                </form>
+            </div>
+            <div>
+                <div class="hd"><span>Akun Google terhubung</span><span class="adm-chip {{ $sys['google'] >= 80 ? 'bad' : '' }}">{{ $sys['google'] }} / 100</span></div>
+                <div class="adm-meter"><i style="width:{{ $gPct }}%"></i></div>
+                <div class="adm-sub">Batas 100 berlaku selama aplikasi Google belum diverifikasi.</div>
+            </div>
+        </div>
     </section>
 
     {{-- ===== BARIS TERAKHIR : Kebijakan non-intervensi ===== --}}

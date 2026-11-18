@@ -10,6 +10,9 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Str;
 
 class AdminMonitoringController extends Controller
 {
@@ -125,6 +128,12 @@ class AdminMonitoringController extends Controller
             return $u;
         });
 
+        $backupDir = storage_path('app/backups');
+        $backupFiles = File::isDirectory($backupDir)
+            ? collect(File::files($backupDir))->filter(fn ($f) => $f->getExtension() === 'sql')
+            : collect();
+        $lastBackup = $backupFiles->isEmpty() ? null : $backupFiles->max(fn ($f) => $f->getMTime());
+        
         return view('admin_monitoring', ['d' => [
             'labels' => $dates->map(fn ($x) => Carbon::parse($x)->format('j/n'))->all(),
             'greet'  => explode(' ', trim($request->user()->name))[0] ?? 'Admin',
@@ -167,6 +176,12 @@ class AdminMonitoringController extends Controller
             ],
             'gauge'    => $gauge,
             'keys'     => $keys,
+            'sys' => [
+                'backup_age'  => $lastBackup ? time() - $lastBackup : null,
+                'google'      => User::whereNotNull('google_refresh_token')->count(),
+                'mail_driver' => config('mail.default'),
+                'mail_from'   => config('mail.from.address'),
+            ],
             'userRows' => $users,
         ]]);
     }
@@ -210,6 +225,18 @@ class AdminMonitoringController extends Controller
 
         return redirect()->to(route('admin.monitoring') . '#tambah-user')
             ->with('status', 'Akun ' . $this->maskEmail($user->email) . ' berhasil dibuat.');
+    }
+
+    public function testMail(Request $request)
+    {
+        try {
+            Mail::raw('Email uji dari Penilai Esai. Jika Anda menerima ini, pengiriman email berfungsi.',
+                fn ($m) => $m->to($request->user()->email)->subject('Email uji Penilai Esai'));
+        } catch (\Throwable $e) {
+            return back()->with('status', 'Gagal mengirim: ' . Str::limit($e->getMessage(), 160));
+        }
+
+        return back()->with('status', 'Email uji dikirim ke ' . $request->user()->email . '.');
     }
 
     private function gaugeStats($q): array

@@ -12,7 +12,6 @@ use App\Http\Controllers\ExamController;
 use App\Http\Controllers\GoogleController;
 use App\Http\Controllers\QuestionController;
 use App\Http\Controllers\ResultController;
-use App\Http\Controllers\StatusController;
 use App\Http\Controllers\UserStatsController;
 use App\Http\Controllers\AdminMonitoringController;
 use App\Http\Middleware\EnsureAdmin;
@@ -93,8 +92,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::delete('/kunci-ai/{aiKey}', [MyAiKeyController::class, 'destroy'])->name('mykeys.destroy');
 
     Route::middleware(EnsureAdmin::class)->group(function () {
-        Route::get('/admin/status', [StatusController::class, 'index'])->name('admin.status');
-        Route::post('/admin/mail-test', [StatusController::class, 'testMail'])->middleware('throttle:3,1')->name('admin.mail-test');
+        Route::post('/admin/mail-test', [AdminMonitoringController::class, 'testMail'])->middleware('throttle:3,1')->name('admin.mail-test');
         Route::get('/admin/monitoring', [AdminMonitoringController::class, 'index'])->name('admin.monitoring');
         Route::post('/admin/monitoring/users', [AdminMonitoringController::class, 'storeUser'])
             ->middleware('throttle:10,1')->name('admin.monitoring.users.store');
