@@ -566,9 +566,16 @@
         @auth
             <a href="{{ route('dashboard') }}" class="nav-dropdown-link @if(request()->routeIs('dashboard', 'exams.*', 'questions.*', 'answers.*')) active @endif" @click="open = false"><span>Penilaian</span><span class="badge" style="font-size:10px">Ujian</span></a>
             @if($has('stats.index'))
-                <a href="{{ route('stats.index') }}" class="nav-dropdown-link @if(request()->routeIs('stats.*', 'admin.monitoring')) active @endif" @click="open = false"><span>Statistik</span><span class="badge info" style="font-size:10px">Data</span></a>
+                @php
+                    $isAdminNav = (auth()->user()->is_admin ?? false)
+                        || ((auth()->user()->role ?? null) === 'admin')
+                        || (method_exists(auth()->user(), 'isAdmin') && auth()->user()->isAdmin());
+                @endphp
+                <a href="{{ route('stats.index') }}" class="nav-dropdown-link @if(request()->routeIs('stats.*', 'admin.monitoring')) active @endif" @click="open = false">
+                    <span>{{ $isAdminNav ? 'Monitoring' : 'Statistik' }}</span>
+                    <span class="badge info" style="font-size:10px">Data</span>
+                </a>
             @endif
-            <a href="{{ route('exams.create') }}" class="nav-dropdown-link @if(request()->routeIs('exams.create')) active @endif" @click="open = false"><span>Buat penilaian baru</span><span class="badge ok" style="font-size:10px">Baru</span></a>
             <a href="{{ route('google.index') }}" class="nav-dropdown-link @if(request()->routeIs('google.*')) active @endif" @click="open = false"><span>Google</span><span class="badge" style="font-size:10px">Koneksi</span></a>
             @if($has('account.show'))
                 <a href="{{ route('account.show') }}" class="nav-dropdown-link @if(request()->routeIs('account.*')) active @endif" @click="open = false"><span>Akun saya</span></a>

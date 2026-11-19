@@ -18,11 +18,9 @@
     /* =========================================================
        1. Hero + judul Stroke Text + latar iridescence
        ========================================================= */
-    .hero { position: relative; isolation: isolate; display: grid; grid-template-columns: 1.05fr .95fr; gap: 28px; align-items: center; padding: 12px 0 30px; }
+    .hero { position: relative; isolation: isolate; display: grid; grid-template-columns: 1.05fr .95fr; gap: 28px; align-items: start; padding: 48px 0 30px; }
     .hero .lead { max-width: 48ch; }
     .hero-actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 22px; }
-    .hero .art { width: 100%; height: auto; max-height: 400px; object-fit: contain; animation: art-float 7s ease-in-out infinite; }
-    @keyframes art-float { 50% { transform: translateY(-10px); } }
 
     /* Latar iridescence satu halaman penuh. Kanvas menempel (sticky) setinggi layar di dalam pembungkus
        setinggi seluruh konten, sehingga murah dirender. Tepi atas/bawah memudar agar tidak menabrak topbar dan footer. */
@@ -67,20 +65,21 @@
     @keyframes rise { from { opacity: 0; transform: translateY(14px); } }
 
     /* =========================================================
-       4. Tombol Specular (pantulan cahaya mengikuti kursor)
+       4. Tombol Specular (pantulan cahaya mengikuti kursor, tanpa outline hijau)
        ========================================================= */
     .spec { position: relative; overflow: hidden; isolation: isolate; box-shadow: inset 0 1px 0 rgba(255, 255, 255, .28); }
     .spec.btn-outline { box-shadow: inset 0 -2px 0 rgba(27, 27, 27, .07); }
     .spec-label { position: relative; z-index: 2; display: inline-flex; align-items: center; gap: 8px; }
     .spec::before { content: ""; position: absolute; inset: 0; z-index: 1; pointer-events: none; opacity: 0; transition: opacity .25s;
-        background: radial-gradient(96px circle at var(--bx, 50%) var(--by, 0%), rgba(255, 255, 255, .5), rgba(255, 255, 255, .12) 45%, transparent 72%); }
-    .spec.btn-outline::before { background: radial-gradient(96px circle at var(--bx, 50%) var(--by, 0%), rgba(196, 245, 93, .85), rgba(196, 245, 93, .25) 50%, transparent 74%); }
+        background: radial-gradient(96px circle at var(--bx, 50%) var(--by, 0%), rgba(255, 255, 255, .42), rgba(255, 255, 255, .08) 45%, transparent 72%); }
+    .spec.btn-outline::before { background: radial-gradient(96px circle at var(--bx, 50%) var(--by, 0%), rgba(255, 255, 255, .18), rgba(130, 140, 160, .14) 50%, transparent 74%); }
     .spec::after { content: ""; position: absolute; top: -25%; bottom: -25%; left: -60%; width: 38%; z-index: 1; pointer-events: none; opacity: 0;
-        background: linear-gradient(105deg, transparent, rgba(255, 255, 255, .55), transparent); transform: skewX(-18deg); }
-    .spec.btn-outline::after { background: linear-gradient(105deg, transparent, rgba(196, 245, 93, .8), transparent); }
+        background: linear-gradient(105deg, transparent, rgba(255, 255, 255, .45), transparent); transform: skewX(-18deg); }
+    .spec.btn-outline::after { background: linear-gradient(105deg, transparent, rgba(255, 255, 255, .22), transparent); }
     .spec:hover::before, .spec:focus-visible::before { opacity: 1; }
     .spec:hover::after { animation: spec-sweep .85s ease; }
-    .spec:hover { box-shadow: 3px 3px 0 var(--lime), inset 0 1px 0 rgba(255, 255, 255, .28); }
+    .spec:hover { box-shadow: 0 8px 20px rgba(0, 0, 0, .18), inset 0 1px 0 rgba(255, 255, 255, .28); }
+    .spec:focus-visible, .hiw-scroller:focus-visible { outline: 2px solid color-mix(in srgb, var(--ink) 45%, transparent); outline-offset: 2px; }
     @keyframes spec-sweep { 0% { left: -60%; opacity: 1; } 100% { left: 130%; opacity: 1; } }
 
     /* =========================================================
@@ -134,7 +133,7 @@
     .hiw { --o: var(--ink); --plat: var(--mist); --sh-a: #ffffff; --lm: var(--lime); }
     html[data-theme="dark"] .hiw { --plat: #2a2a27; }
 
-    .hiw-stage { position: relative; height: clamp(600px, 82vh, 720px); margin-top: 8px; user-select: none; -webkit-user-select: none; }
+    .hiw-stage { position: relative; height: clamp(600px, 82vh, 720px); margin-top: -50px; user-select: none; -webkit-user-select: none; }
 
     /* Adegan: menyatu dengan latar halaman, tepinya memudar (tanpa kotak/bingkai) */
     .hiw-scene { position: absolute; inset: 0; overflow: hidden; pointer-events: none;
@@ -414,22 +413,12 @@
     html[data-theme="dark"] .sw-lime { background: var(--lime); color: #1b1b1b; border-color: #1b1b1b; box-shadow: 0 4px 0 rgba(0, 0, 0, .5); }
     @media (min-width: 821px) {
         .hero .st-w.is-hl {
-            -webkit-text-stroke-color: var(--lime);
+            -webkit-text-stroke-color: transparent;
         }
     }
     html:not([data-theme="dark"]) .hero .st-w.is-hl {
         filter: drop-shadow(0 1px 0 rgba(27, 27, 27, .35));
     }
-
-/* Legenda mesin: hanya angka dalam lingkaran lime, rata tengah di bawah ilustrasi */
-    .hm .hm-legend { justify-content: center; gap: 12px; }
-    .hm .hm-legend .hm-chip { font-size: 0; gap: 0; padding: 0; background: none; border: 0; border-radius: 50%; box-shadow: none; }
-    .hm .hm-legend .hm-chip-no { width: 34px; height: 34px; font-size: 13.5px; transition: transform .2s ease, box-shadow .2s ease; }
-    .hm .hm-legend .hm-chip:hover, .hm .hm-legend .hm-chip:focus-visible,
-    .hm .hm-legend .hm-chip[aria-pressed="true"] { background: none; box-shadow: none; }
-    .hm .hm-legend .hm-chip:hover .hm-chip-no,
-    .hm .hm-legend .hm-chip:focus-visible .hm-chip-no { transform: translateY(-2px); box-shadow: 0 0 0 4px color-mix(in srgb, var(--lime) 45%, transparent); }
-    .hm .hm-legend .hm-chip[aria-pressed="true"] .hm-chip-no { transform: scale(1.12); box-shadow: 0 0 0 4px color-mix(in srgb, var(--lime) 45%, transparent), 2px 2px 0 var(--ink); }
 
     /* =========================================================
        Responsif
@@ -437,7 +426,6 @@
     @media (max-width: 820px) {
         .hero, .band, .aspek { grid-template-columns: 1fr; }
         .page-bg { inset: 0 -16px; }
-        .hero .art { max-height: 280px; }
         .band { padding: 24px 20px; }
         .brands { grid-template-columns: 1fr; gap: 14px; }
         .brands-label { border-right: 0; padding-right: 0; }
@@ -451,7 +439,8 @@
        ========================================================= */
     @media (prefers-reduced-motion: reduce) {
         .st-w { animation: none; clip-path: none; background-size: 100% 100%; }
-        .hero .lead, .hero-actions, .hero .art { animation: none; }
+        .hero .lead, .hero-actions, .hero-eyebrow, .cv { animation: none; }
+        .cv-float, .cv-seam-pulse { animation: none; }
         .js .reveal { opacity: 1; translate: 0 0; transition: none; }
         .cloud-track { animation: none; }
         .cloud-set[aria-hidden="true"] { display: none; }
@@ -464,9 +453,6 @@
        Mikrodinamika: melayang, hover, kedalaman saat digulir
        (hanya desktop dengan kursor; mati di layar sentuh/mobile dan saat reduced-motion)
        ========================================================= */
-    .hero > .hm { animation: hm-float 7s ease-in-out infinite; will-change: translate; }
-    @keyframes hm-float { 50% { translate: 0 -10px; } }
-
     .sw { transition: transform .8s cubic-bezier(.5, 0, .2, 1), opacity .5s ease, translate .3s ease, filter .3s ease; }
     .sw-no { transition: scale .3s ease, rotate .3s ease; }
     .logo { transition: color .25s, scale .3s cubic-bezier(.3, 1.4, .5, 1); }
@@ -481,11 +467,7 @@
         .hiw-seg:hover b, .hiw-seg:focus-visible b { scale: 1.2; }
         .scale .badge:hover { scale: 1.08; }
     }
-    @media (max-width: 820px), (pointer: coarse) {
-        .hero .art, .hero > .hm { animation: none; will-change: auto; }
-    }
     @media (prefers-reduced-motion: reduce) {
-        .hero .art, .hero > .hm { animation: none; }
         .sw, .sw-no, .logo, .hiw-seg b, .scale .badge { transition: none; }
     }
 
@@ -503,7 +485,9 @@
 
         /* Hero: ringkas, CTA penuh lebar, mesin 3D disembunyikan */
         .hero { gap: 0; padding: 2px 0 10px; }
-        .hero > .hm { display: none; }
+        .cv { display: none; }
+        .hero-eyebrow { font-size: 10.5px; letter-spacing: .14em; margin-bottom: 14px; }
+        .hero-bg { left: 0; right: 0; }
         .hero h1 { font-size: clamp(28px, 8.6vw, 36px); line-height: 1.08; margin-bottom: .35em; }
         .st-sub { font-size: .5em; line-height: 1.35; margin-top: .55em; }
         .hero .lead { font-size: 14.5px; line-height: 1.55; margin: 0; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
@@ -563,6 +547,160 @@
         .hero h1 { font-size: 28px; }
         .sw { flex-basis: 88%; }
     }
+
+    /* =========================================================
+       Hero baru: layout Syntra (HeroCopy + CoreVisual + HeroFloor)
+       Navbar, judul Stroke Text, dan tombol tetap milik Essay Grader.
+       ========================================================= */
+    .hero-wrap { position: relative; }
+
+    /* Latar hero: polos (warna halaman), menutup latar kursor lama hanya di area hero,
+       lalu memudar halus ke latar beranimasi section di bawahnya. */
+    .hero-bg { position: absolute; top: 0; bottom: -180px; left: -36px; right: -36px; z-index: -1; pointer-events: none; overflow: hidden;
+        background: var(--hero-paper, #ffffff);
+        -webkit-mask-image: linear-gradient(to bottom, #000 0, #000 calc(100% - 180px), transparent 100%);
+                mask-image: linear-gradient(to bottom, #000 0, #000 calc(100% - 180px), transparent 100%); }
+
+    /* Lantai isometrik: abu-abu tipis + salinan lime yang terlihat lewat jendela bulat di bawah kursor */
+    .hero-floor { position: absolute; inset: 0; z-index: 0; overflow: hidden; pointer-events: none;
+        -webkit-mask-image: linear-gradient(to bottom, transparent 0, rgba(0,0,0,.18) 36px, rgba(0,0,0,.6) 84px, #000 150px);
+                mask-image: linear-gradient(to bottom, transparent 0, rgba(0,0,0,.18) 36px, rgba(0,0,0,.6) 84px, #000 150px); }
+    .hero-floor .fl, .hero-floor .fl-lit {
+        --fl-area: radial-gradient(ellipse 75% 80% at 72% 60%, #000 20%, transparent 100%);
+        --fl-edges: linear-gradient(to left, transparent 0%, #000 22%), linear-gradient(to top, transparent 0%, #000 28%);
+        -webkit-mask-image: var(--fl-area), var(--fl-edges); mask-image: var(--fl-area), var(--fl-edges);
+        -webkit-mask-composite: source-in; mask-composite: intersect; }
+    .hero-floor .fl { position: absolute; inset: 0; width: 100%; height: 100%; opacity: .4; color: color-mix(in srgb, var(--ink) 26%, transparent); }
+    .hero-floor .fl-spot { position: absolute; top: 0; left: 0; opacity: 0; transition: opacity .25s ease; will-change: transform, opacity;
+        -webkit-mask-image: radial-gradient(closest-side, #000 0%, transparent 100%); mask-image: radial-gradient(closest-side, #000 0%, transparent 100%); }
+    .hero-floor .fl-lit { position: absolute; top: 0; left: 0; will-change: transform; color: color-mix(in srgb, var(--lime) 88%, #2a3a00); }
+    .hero-floor .fl-lit svg { display: block; width: 100%; height: 100%; }
+    .hero-floor[data-spot="on"] .fl-spot { opacity: var(--spot-o, 1); }
+
+    @media (min-width: 821px) {
+        section.hero { grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr); gap: 24px; align-items: center; padding: 0 0 8px; }
+    }
+    .hero-copy { display: flex; flex-direction: column; justify-content: center; min-width: 0; }
+    .hero-eyebrow { display: flex; align-items: center; gap: 12px; margin: 0 0 22px; font: 600 12px var(--mono, ui-monospace, monospace); letter-spacing: .2em; text-transform: uppercase;
+        color: color-mix(in srgb, var(--ink) 62%, transparent); animation: rise .7s ease both; animation-delay: .05s; }
+    .hero-eyebrow .dot { flex: none; width: 9px; height: 9px; border-radius: 50%; background: var(--lime);
+        box-shadow: 0 0 0 1.5px color-mix(in srgb, var(--ink) 55%, transparent), 0 0 0 5px color-mix(in srgb, var(--lime) 40%, transparent), 0 0 14px 2px var(--lime); }
+
+    /* Ilustrasi inti 3D */
+    .cv { --cv-grey: color-mix(in srgb, var(--ink) 58%, transparent); --cv-accent-ink: color-mix(in srgb, var(--lime) 50%, var(--ink));
+        position: relative; width: 100%; max-width: 760px; aspect-ratio: 1 / 1; margin: -9% 0 -11% 0; container-type: inline-size; overflow: clip;
+        animation: cv-enter 1.1s cubic-bezier(.22, 1, .36, 1) .25s backwards; }
+    @keyframes cv-enter { from { opacity: 0; scale: .97; } }
+    .cv-in { position: absolute; inset: 0; transform: translateY(5%); }
+    .cv-layer { position: absolute; inset: 0; pointer-events: none; }
+    .cv-layer svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+    .cv-halo { position: absolute; inset: 6%; border-radius: 50%; pointer-events: none; background: radial-gradient(closest-side, color-mix(in srgb, var(--surface, #fff) 90%, transparent), transparent); }
+    .cv-fade { position: absolute; inset: 0; -webkit-mask-image: linear-gradient(to right, transparent 0%, #000 14%); mask-image: linear-gradient(to right, transparent 0%, #000 14%); }
+    .cv-persp { position: absolute; inset: 0; pointer-events: none; perspective: 1400px; }
+    .cv-rot { position: absolute; inset: 0; }
+    .cv-float { position: absolute; inset: 0; animation: cv-float 6.5s ease-in-out infinite alternate; }
+    @keyframes cv-float { to { transform: translateY(-6px); } }
+    .cv-seam-pulse { animation: cv-seam 4.8s ease-in-out infinite alternate; }
+    @keyframes cv-seam { from { opacity: .78; } to { opacity: 1; } }
+    .cv-ink { color: color-mix(in srgb, var(--ink) 20%, transparent); }
+    .cv-conn { position: absolute; inset: 0; pointer-events: none; }
+    .cv-conn svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; pointer-events: none; }
+    .cv-conn .lit-line, .cv-conn .halo { transition: opacity .25s ease; }
+
+    .cv-hint { position: absolute; top: 84%; left: 50%; transform: translateX(-50%); margin: 0; display: flex; align-items: center; gap: 6px; font-size: 12.5px; white-space: nowrap; pointer-events: none; color: var(--cv-grey); }
+    .cv-hint svg { width: 14px; height: 14px; color: var(--cv-accent-ink); }
+    .cv-hint .tap { display: none; }
+    @media (hover: none) { .cv-hint .hov { display: none; } .cv-hint .tap { display: inline; } }
+    .cv-hit { position: absolute; top: 35%; left: 22%; width: 56%; height: 44%; border: 0; padding: 0; background: none; cursor: default; border-radius: 3rem; }
+    .cv-hit,
+    .cv-hit:hover, .cv-hit:focus, .cv-hit:focus-visible, .cv-hit:active,
+    .hero-wrap .cv button, .hero-wrap .cv button:hover, .hero-wrap .cv button:focus,
+    .hero-wrap .cv button:focus-visible, .hero-wrap .cv button:active {
+        outline: none !important;
+        box-shadow: none !important;
+        border: 0 !important;
+        background: none !important;
+        filter: none !important;
+        transform: none !important;
+        translate: none !important;
+        -webkit-tap-highlight-color: transparent;
+    }
+    .cv-hit::before, .cv-hit::after { content: none !important; }
+
+    /* Kartu tahap: kaca terang yang menutupi garis di belakang teks */
+    .cv-cards { position: absolute; inset: 0; margin: 0; padding: 0; list-style: none; pointer-events: none; font-size: clamp(10px, 1.7cqw, 15px); }
+    .cv-cards > li { position: absolute; transform: translateY(-50%); }
+    .cv-card { opacity: 0; padding: .85em .9em; border: none; border-radius: 1.3em;
+    background: color-mix(in srgb, var(--surface, #fff) 86%, transparent); color: var(--ink);
+    box-shadow: 0 1px 2px rgb(60 50 40 / .05), 0 14px 34px -18px rgb(60 50 40 / .35), inset 0 1px 0 rgb(255 255 255 / .35);
+    -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); transition: box-shadow .3s ease; }
+    .cv.is-open .cv-card { pointer-events: auto; }
+    .cv-card.is-lit { border: none;
+        box-shadow: 0 1px 2px rgb(60 50 40 / .05), 0 14px 34px -18px rgb(60 50 40 / .35), inset 0 1px 0 rgb(255 255 255 / .35); }
+    .cv-cb { display: grid; grid-template-columns: 1.35em minmax(0, 1fr) auto; column-gap: .5em; align-items: start; }
+    .cv-no { grid-column: 1; grid-row: 1; display: flex; align-items: center; height: 1.64em; font-size: .8em; font-weight: 500; color: var(--cv-grey); font-variant-numeric: tabular-nums; }
+    .cv-ttl { grid-column: 2; grid-row: 1; display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; column-gap: .6em; }
+    .cv-ttl p { margin: 0; font-size: 1.05em; line-height: 1.25; font-weight: 600; letter-spacing: -.015em; white-space: nowrap; color: var(--ink); }
+    .cv-main-tag { flex: none; font-size: .72em; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--cv-accent-ink); }
+    .cv-ic { grid-column: 1; grid-row: 2; margin-top: .4em; display: flex; align-items: center; height: 1.276em; }
+    .cv svg.ln { fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+    .cv-ap { display: inline-flex; color: var(--cv-accent-ink); }
+    .cv-ic svg { width: 1.25em; height: 1.25em; color: var(--cv-accent-ink); }
+    .cv-it { grid-column: 2; grid-row: 2; margin-top: .4em; min-width: 0; }
+    .cv-it p { margin: 0; font-size: .88em; line-height: 1.45; color: var(--cv-grey); }
+    .cv-main .cv-ttl, .cv-main .cv-it { grid-column: 2 / span 2; }
+    .cv-apps { display: flex; align-items: center; flex: none; gap: .3em; }
+    .cv-apps svg { width: 1.45em; height: 1.45em; }
+    .cv-side { grid-column: 3; grid-row: 1 / span 2; align-self: center; }
+    .cv-main .cv-apps { gap: .45em; margin-top: .75em; justify-content: flex-end; }
+    .cv-tile { display: grid; place-items: center; width: 2.15em; height: 2.15em; border-radius: .6em; border: 1px solid rgb(0 0 0 / .1); background: #fff; color: #171717; box-shadow: 0 1px 2px rgb(60 50 40 / .06); }
+    .cv-tile svg { width: 1.2em; height: 1.2em; }
+    @container (max-width: 640px) { .cv-apps { display: none; } }
+
+    /* =========================================================
+       Hero: tanpa outline/garis tepi saat hover, fokus, atau aktif
+       ========================================================= */
+    .hero-wrap .hero *:hover, .hero-wrap .hero *:focus, .hero-wrap .hero *:focus-visible, .hero-wrap .hero *:active,
+    .hero-wrap .cv *:hover, .hero-wrap .cv *:focus, .hero-wrap .cv *:focus-visible, .hero-wrap .cv *:active { outline: none !important; outline-offset: 0 !important; -webkit-tap-highlight-color: transparent; }
+    .hero-wrap .cv .cv-card, .hero-wrap .cv .cv-card:hover, .hero-wrap .cv .cv-card.is-lit { border: none; outline: none;
+        box-shadow: 0 1px 2px rgb(60 50 40 / .05), 0 14px 34px -18px rgb(60 50 40 / .35), inset 0 1px 0 rgb(255 255 255 / .35); }
+    .hero-wrap .cv .cv-conn .lit-line, .hero-wrap .cv .cv-ai-rim, .hero-wrap .cv .cv-ai-halo { display: none; }
+    .hero-wrap .cv svg, .hero-wrap .cv .cv-layer, .hero-wrap .cv .cv-hit { outline: none; }
+    .hero-actions .spec:hover, .hero-actions .spec:focus, .hero-actions .spec:focus-visible, .hero-actions .spec:active { outline: none; box-shadow: inset 0 1px 0 rgba(255, 255, 255, .28); }
+    .hero-actions .spec.btn-outline:hover, .hero-actions .spec.btn-outline:focus, .hero-actions .spec.btn-outline:focus-visible, .hero-actions .spec.btn-outline:active { box-shadow: inset 0 -2px 0 rgba(27, 27, 27, .07); }
+
+    /* =========================================================
+       Ilustrasi 3D: mode terang = komponen dibalik menjadi hitam
+       (mode gelap tidak diubah; aksen lime tetap)
+       ========================================================= */
+    html:not([data-theme="dark"]) .cv #cv-side stop:nth-child(1) { stop-color: #31312e; }
+    html:not([data-theme="dark"]) .cv #cv-side stop:nth-child(2) { stop-color: #292927; }
+    html:not([data-theme="dark"]) .cv #cv-side stop:nth-child(3) { stop-color: #161615; }
+    html:not([data-theme="dark"]) .cv #cv-side stop:nth-child(4) { stop-color: #222220; }
+    html:not([data-theme="dark"]) .cv #cv-side-shade stop { stop-color: #000; }
+    html:not([data-theme="dark"]) .cv #cv-bevel stop:nth-child(1) { stop-color: #3b3b38; }
+    html:not([data-theme="dark"]) .cv #cv-bevel stop:nth-child(2) { stop-color: #1f1f1d; }
+    html:not([data-theme="dark"]) .cv #cv-top stop:nth-child(1) { stop-color: #2b2b29; }
+    html:not([data-theme="dark"]) .cv #cv-top stop:nth-child(2) { stop-color: #1a1a19; }
+    html:not([data-theme="dark"]) .cv #cv-inlay stop:nth-child(1) { stop-color: #1b1b19; }
+    html:not([data-theme="dark"]) .cv #cv-inlay stop:nth-child(2) { stop-color: #302f2c; }
+    html:not([data-theme="dark"]) .cv #cv-slot stop:nth-child(1) { stop-color: #b9b4a8; }
+    html:not([data-theme="dark"]) .cv #cv-slot stop:nth-child(2) { stop-color: #8a867b; }
+    html:not([data-theme="dark"]) .cv #cv-hole stop:nth-child(1) { stop-color: #0c0c0b; }
+    html:not([data-theme="dark"]) .cv #cv-hole stop:nth-child(2) { stop-color: #2b2b28; }
+    html:not([data-theme="dark"]) .cv #cv-glass stop { stop-color: #1b1b1b; }
+    html:not([data-theme="dark"]) .cv .cv-s-body { stroke: #4b4b45; }
+    html:not([data-theme="dark"]) .cv .cv-s-bevel { stroke: #55554f; }
+    html:not([data-theme="dark"]) .cv .cv-s-top { stroke: #6b6b63; }
+    html:not([data-theme="dark"]) .cv .cv-s-groove { stroke: #3c3c37; }
+    html:not([data-theme="dark"]) .cv .cv-s-panel { stroke: #6b6b62; }
+    html:not([data-theme="dark"]) .cv .cv-s-fast { stroke: #4d4d47; }
+    html:not([data-theme="dark"]) .cv .cv-s-inl { stroke: #45453f; }
+    html:not([data-theme="dark"]) .cv .cv-s-inl2 { stroke: #6b6b63; }
+    html:not([data-theme="dark"]) .cv .cv-s-glass { stroke: #3a3a36; }
+    html:not([data-theme="dark"]) .cv .cv-nd { fill: #1b1b1b; stroke: #55554f; }
+    html:not([data-theme="dark"]) .cv .cv-n-sh { fill: #000; }
+    html:not([data-theme="dark"]) .cv .cv-n-lb { fill: #77776e; }
 </style>
 @endpush
 
@@ -598,8 +736,24 @@
 @include('landing-mobile', ['part' => 'header'])
 <div class="page-bg" aria-hidden="true"><canvas></canvas></div>
 
-<section class="hero">
-    <div>
+@php
+    // Lima tahap alur kerja pada ilustrasi inti 3D (urut dari bawah ke atas).
+    $coreStages = [
+        ['title' => 'Input Formulir', 'items' => ['Google Forms', 'Link Responden', 'Data Jawaban'], 'apps' => ['forms', 'link', 'google'], 'icon' => 'form', 'side' => 'right'],
+        ['title' => 'Rubrik & Konteks', 'items' => ['Kriteria Nilai', 'Bobot Soal', 'Kunci Jawaban'], 'apps' => ['list', 'sliders', 'key'], 'icon' => 'pen', 'side' => 'left'],
+        ['title' => 'AI Grader Engine', 'items' => ['Analisis Konten', 'Logika', 'Struktur Tulisan'], 'apps' => ['gemini', 'ollama', 'groq'], 'side' => 'right', 'main' => true, 'tag' => 'Main layer'],
+        ['title' => 'Review & Koreksi', 'items' => ['Tinjau Skor', 'Penyesuaian Manual', 'Catatan'], 'apps' => ['eye', 'pencil', 'note'], 'icon' => 'check', 'side' => 'left'],
+        ['title' => 'Hasil & Rekap', 'items' => ['Google Sheets', 'Laporan Nilai', 'Ekspor Data'], 'apps' => ['sheets', 'excel', 'chart'], 'icon' => 'chart', 'side' => 'right'],
+    ];
+    $startUrl = $signupOpen ? route('register') : route('login');
+@endphp
+<div class="hero-wrap">
+    {{-- Latar hero polos + lantai isometrik yang mengikuti kursor; memudar ke latar beranimasi di bawahnya --}}
+    <div class="hero-bg" aria-hidden="true"><div class="hero-floor"></div></div>
+
+    <section class="hero">
+        <div class="hero-copy">
+            <p class="hero-eyebrow"><span class="dot" aria-hidden="true"></span>Platform penilaian otomatis berbasis AI</p>
         <h1>
             <span class="st-main">
                 @foreach($titleSegments as [$text, $cls])
@@ -615,17 +769,15 @@
             </span>
         </h1>
         <p class="lead">Tempel link Form, isi rubrik, dan AI menilai pemahaman konten, logika, dan struktur tulisan tiap responden. Anda tinggal meninjau dan mengoreksi.</p>
-        <div class="hero-actions">
-            <a class="btn spec" href="{{ route('login') }}" data-rocket><span class="spec-label">Masuk</span></a>
-            @if($signupOpen)
-                <a class="btn btn-outline spec" href="{{ route('register') }}"><span class="spec-label">Daftar</span></a>
-            @endif
-            <a class="btn btn-outline spec" href="#cara-kerja"><span class="spec-label">Lihat cara kerja</span></a>
+            <div class="hero-actions">
+                <a class="btn spec" href="{{ $startUrl }}" data-rocket><span class="spec-label">Mulai</span></a>
+                <a class="btn btn-outline spec" href="#cara-kerja"><span class="spec-label">Lihat cara kerja</span></a>
+            </div>
         </div>
-    </div>
-    {{-- Mesin 3D: empat stasiun = empat langkah cara kerja (gambar SVG lama dipakai sebagai fallback di dalam partial) --}}
-    @include('hero-machine')
-</section>
+        {{-- Ilustrasi inti 3D: lima plat = lima tahap alur kerja (dirakit oleh skrip hero di bawah) --}}
+        <div class="cv" id="cv"></div>
+    </section>
+</div>
 
 @php
     // Logo showcase: nama app, berkas SVG di public/images/, dan ikon cadangan (dipakai bila berkasnya belum ada).
@@ -769,6 +921,31 @@
     function egSignal() { return window.egSignal ? window.egSignal() : undefined; }
     var N = 6;
     sec.classList.add('is-js');
+
+    /* ---------- "Lihat cara kerja": gulir tepat ke panggung (tepat di bawah navbar), bukan ke awal section ---------- */
+    function navOffset() {
+        var c = document.querySelectorAll('header, nav, .navbar, .topbar'), i, cs, r;
+        for (i = 0; i < c.length; i++) {
+            cs = getComputedStyle(c[i]);
+            if (cs.position === 'fixed' || cs.position === 'sticky') { r = c[i].getBoundingClientRect(); if (r.height) { return r.bottom; } }
+        }
+        return 112;
+    }
+    function goToStage(smooth) {
+        var GAP = 10; // jarak label "LANGKAH 1" dari bawah navbar (px): besar = halaman berhenti lebih atas, kecil = lebih ke bawah
+        var first = steps[0] && (steps[0].firstElementChild || steps[0]);
+        var anchor = first || stage;
+        var top = anchor.getBoundingClientRect().top + window.pageYOffset - navOffset() - GAP;
+        window.scrollTo({ top: Math.max(0, top), behavior: (smooth && !reduce) ? 'smooth' : 'auto' });
+    }
+    [].slice.call(document.querySelectorAll('a[href="#cara-kerja"]')).forEach(function (a) {
+        a.addEventListener('click', function (e) {
+            e.preventDefault();
+            goToStage(true);
+            try { history.replaceState(null, '', '#cara-kerja'); } catch (err) { /* abaikan */ }
+        });
+    });
+    if (location.hash === '#cara-kerja') { window.addEventListener('load', function () { setTimeout(function () { goToStage(false); }, 60); }); }
 
     /* ---------- util ---------- */
     function clamp(v, a, b) { return Math.max(a, Math.min(b, v)); }
@@ -1510,10 +1687,8 @@
     (function () {
         // [selector, kecepatan, batas geser px (0 = bebas), selisih kedalaman antar elemen, hanya desktop]
         var CONFIG = [
-            ['.hero .art', .12, 0, 0, false],
             ['.scale .badge', .05, 8, .2, true],
-            ['.sw-no', .07, 8, 0, true],
-            ['.hm .hm-chip-no', .08, 10, .3, true]
+            ['.sw-no', .07, 8, 0, true]
         ];
         var desktop = window.matchMedia('(min-width: 821px) and (hover: hover) and (pointer: fine)');
         var items = [];
@@ -1562,6 +1737,549 @@
     var bar = document.getElementById('m-cta'), cta = document.querySelector('.hero-actions');
     if (!bar || !cta || !('IntersectionObserver' in window)) { if (bar) { bar.classList.remove('is-off'); } return; }
     new IntersectionObserver(function (e) { bar.classList.toggle('is-off', e[0].isIntersecting); }).observe(cta);
+})();
+</script>
+
+<script>window.__egStages = @json($coreStages);</script>
+<script>
+(function () {
+    'use strict';
+    var wrap = document.querySelector('.hero-wrap');
+    if (!wrap) { return; }
+    var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var docEl = document.documentElement;
+
+    /* ---------- Latar hero = warna halaman yang sebenarnya (tema terang/gelap), agar peleburan tanpa garis ---------- */
+function paintPaper() {
+        var isDark = docEl.getAttribute('data-theme') === 'dark';
+        var navEl = document.querySelector('header, nav, .navbar, .topbar');
+        var navBg = navEl ? getComputedStyle(navEl).backgroundColor : '';
+        var darkHex = '#171717'; // samakan dengan kode hex hitam navbar Anda
+
+        if (!isDark) {
+            wrap.style.setProperty('--hero-paper', '#ffffff');
+            return;
+        }
+
+        if (navBg && navBg !== 'transparent' && navBg !== 'rgba(0, 0, 0, 0)') {
+            wrap.style.setProperty('--hero-paper', navBg);
+        } else {
+            wrap.style.setProperty('--hero-paper', darkHex);
+        }
+    }
+    paintPaper();
+    try {
+        new MutationObserver(function () { paintPaper(); setTimeout(paintPaper, 450); })
+            .observe(docEl, { attributes: true, attributeFilter: ['data-theme', 'class'] });
+    } catch (e) { /* abaikan */ }
+
+    /* ---------- HeroFloor: grid isometrik + jendela lime mengikuti kursor ---------- */
+    (function () {
+        var bg = wrap.querySelector('.hero-bg'), floor = wrap.querySelector('.hero-floor');
+        if (!bg || !floor) { return; }
+        var CELL_W = 84, CELL_H = 48, SPOT = 340;
+        function grid(id, sw, fill) {
+            var cells = fill ? '<path d="M' + CELL_W / 2 + ' 0L' + CELL_W + ' ' + CELL_H / 2 + 'L' + CELL_W / 2 + ' ' + CELL_H + 'L0 ' + CELL_H / 2 + 'Z" fill="currentColor" fill-opacity=".42"/>' +
+                '<path d="M0 0L' + CELL_W / 2 + ' 0L0 ' + CELL_H / 2 + 'ZM' + CELL_W + ' 0L' + CELL_W / 2 + ' 0L' + CELL_W + ' ' + CELL_H / 2 + 'ZM0 ' + CELL_H + 'L0 ' + CELL_H / 2 + 'L' + CELL_W / 2 + ' ' + CELL_H + 'ZM' + CELL_W + ' ' + CELL_H + 'L' + CELL_W + ' ' + CELL_H / 2 + 'L' + CELL_W / 2 + ' ' + CELL_H + 'Z" fill="currentColor" fill-opacity=".24"/>' : '';
+            return '<svg aria-hidden="true" width="100%" height="100%"><defs><pattern id="' + id + '" width="' + CELL_W + '" height="' + CELL_H + '" patternUnits="userSpaceOnUse">' + cells +
+                '<path d="M0 ' + CELL_H / 2 + 'L' + CELL_W / 2 + ' 0L' + CELL_W + ' ' + CELL_H / 2 + 'M0 ' + CELL_H / 2 + 'L' + CELL_W / 2 + ' ' + CELL_H + 'L' + CELL_W + ' ' + CELL_H / 2 + '" fill="none" stroke="currentColor" stroke-width="' + sw + '"/></pattern></defs>' +
+                '<rect width="100%" height="100%" fill="url(#' + id + ')"/></svg>';
+        }
+        floor.innerHTML = '<div class="fl">' + grid('eg-floor-cell', .8) + '</div>' +
+            '<div class="fl-spot" style="width:' + SPOT + 'px;height:' + SPOT + 'px"><div class="fl-lit">' + grid('eg-floor-cell-lit', 1.1, true) + '</div></div>';
+        var spot = floor.querySelector('.fl-spot'), lit = floor.querySelector('.fl-lit');
+        floor.setAttribute('data-spot', 'off');
+        function size() { lit.style.width = bg.clientWidth + 'px'; lit.style.height = bg.clientHeight + 'px'; }
+        size();
+        if ('ResizeObserver' in window) { new ResizeObserver(size).observe(bg); } else { window.addEventListener('resize', size); }
+        if (reduce) { return; }
+        var frame = 0;
+        wrap.addEventListener('pointermove', function (e) {
+            if (e.pointerType !== 'mouse') { return; }
+            cancelAnimationFrame(frame);
+            frame = requestAnimationFrame(function () {
+                var box = bg.getBoundingClientRect(), x = e.clientX - box.left - SPOT / 2, y = e.clientY - box.top - SPOT / 2;
+                var navEl = document.querySelector('header, nav, .navbar, .topbar');
+                var navBottom = navEl ? navEl.getBoundingClientRect().bottom : 0;
+                var edge = Math.max(navBottom, box.top), d = (e.clientY - edge) / 170;
+                d = Math.max(0, Math.min(1, d));
+                floor.style.setProperty('--spot-o', (d * d * (3 - 2 * d)).toFixed(3));
+                spot.style.transform = 'translate3d(' + x + 'px,' + y + 'px,0)';
+                lit.style.transform = 'translate3d(' + (-x) + 'px,' + (-y) + 'px,0)';
+                floor.setAttribute('data-spot', 'on');
+            });
+        });
+        wrap.addEventListener('pointerleave', function () { cancelAnimationFrame(frame); floor.setAttribute('data-spot', 'off'); });
+    })();
+
+    /* ---------- CoreVisual ---------- */
+    var host = document.getElementById('cv');
+    if (!host) { return; }
+    var STAGES = window.__egStages || [];
+    if (!STAGES.length) { return; }
+
+    /* Warna aksen: ikut --lime milik tema; turunannya dihitung dari situ */
+    function parseColor(s) {
+        s = (s || '').trim();
+        var m = /^#([0-9a-f]{3})$/i.exec(s);
+        if (m) { return [0, 1, 2].map(function (i) { return parseInt(m[1][i] + m[1][i], 16); }); }
+        m = /^#([0-9a-f]{6})/i.exec(s);
+        if (m) { return [0, 2, 4].map(function (i) { return parseInt(m[1].substr(i, 2), 16); }); }
+        m = /rgba?\(([^)]+)\)/.exec(s);
+        if (m) { return m[1].split(/[ ,\/]+/).map(parseFloat).slice(0, 3); }
+        return null;
+    }
+    function hex(c) { return '#' + c.map(function (v) { v = Math.max(0, Math.min(255, Math.round(v))); return (v < 16 ? '0' : '') + v.toString(16); }).join(''); }
+    function mix(a, b, t) { return a.map(function (v, i) { return v + (b[i] - v) * t; }); }
+    var base = parseColor(getComputedStyle(docEl).getPropertyValue('--lime')) || [196, 245, 93];
+    var W = [255, 255, 255], K = [0, 0, 0];
+    var ACC = hex(base), ACC_HI = hex(mix(base, W, .55)), ACC_LO = hex(mix(base, K, .12)), ACC_MID = hex(mix(base, W, .25));
+    var LOGO_SIDE = [.62, .52, .42, .33, .24, .15].map(function (t) { return hex(mix(base, K, t)); });
+    var CRY_DK = hex(mix(base, K, .38)), CRY_RIM = hex(mix(base, K, .5)), CRY_SH = hex(mix(base, K, .65));
+
+    /* ----- Geometri isometrik ----- */
+    var ISO_X = .866, ISO_Y = .5, CX = 500, CY = 500, FLAT = .57, RING_RX = [330, 430];
+    var BASE = { half: 168, radius: 40, top: 475, depth: 34 }, SEAM_GAP = 9;
+    var MID = { half: 151, radius: 36, top: BASE.top - SEAM_GAP - 28, depth: 28 };
+    var CAP = { half: 101, radius: 28, top: MID.top - 14, depth: 14 };
+    var FACE = { left: ISO_X + ' ' + ISO_Y + ' 0 1', right: ISO_X + ' ' + (-ISO_Y) + ' 0 1', top: ISO_X + ' ' + ISO_Y + ' ' + (-ISO_X) + ' ' + ISO_Y };
+    function rnd(n) { return Math.round(n * 100) / 100; }
+    function ext(o, p) { var r = {}, k; for (k in o) { r[k] = o[k]; } for (k in p) { r[k] = p[k]; } return r; }
+    function proj(x, y, cx, cy) { cx = cx == null ? CX : cx; cy = cy == null ? CY : cy; return [cx + (x - y) * ISO_X, cy + (x + y) * ISO_Y]; }
+    function footprint(half, radius, steps) {
+        steps = steps || 14;
+        var r = Math.min(radius, half), c = half - r, pts = [], i;
+        [[c, c, 0], [-c, c, 90], [-c, -c, 180], [c, -c, 270]].forEach(function (k) {
+            for (i = 0; i <= steps; i++) {
+                var a = ((k[2] + 90 * i / steps) * Math.PI) / 180;
+                pts.push([k[0] + r * Math.cos(a), k[1] + r * Math.sin(a)]);
+            }
+        });
+        return pts;
+    }
+    function toPath(pts) { return 'M' + pts.map(function (p) { return p[0].toFixed(2) + ' ' + p[1].toFixed(2); }).join('L') + 'Z'; }
+    function topPath(slab, inset, cx, dy) {
+        inset = inset || 0; cx = cx == null ? CX : cx; dy = dy || 0;
+        var half = slab.half - inset, radius = Math.max(slab.radius - inset, 1);
+        return toPath(footprint(half, radius).map(function (p) { return proj(p[0], p[1], cx, slab.top + dy); }));
+    }
+    function hull(points) {
+        var pts = points.slice().sort(function (a, b) { return a[0] - b[0] || a[1] - b[1]; });
+        function cross(o, a, b) { return (a[0] - o[0]) * (b[1] - o[1]) - (a[1] - o[1]) * (b[0] - o[0]); }
+        function build(list) {
+            var out = [];
+            list.forEach(function (p) {
+                while (out.length >= 2 && cross(out[out.length - 2], out[out.length - 1], p) <= 0) { out.pop(); }
+                out.push(p);
+            });
+            out.pop();
+            return out;
+        }
+        return build(pts).concat(build(pts.slice().reverse()));
+    }
+    function bodyPath(slab, inset) {
+        inset = inset || 0;
+        var half = slab.half - inset, radius = Math.max(slab.radius - inset, 1), o = footprint(half, radius);
+        var up = o.map(function (p) { return proj(p[0], p[1], CX, slab.top); });
+        var lo = o.map(function (p) { return proj(p[0], p[1], CX, slab.top + slab.depth); });
+        return toPath(hull(up.concat(lo)));
+    }
+    function facePoint(slab, side, u, v) {
+        var p;
+        if (side === 'left') { p = proj(-slab.half + 2 * slab.half * u, slab.half, CX, slab.top); }
+        else { p = proj(slab.half, slab.half - 2 * slab.half * u, CX, slab.top); }
+        return [p[0], p[1] + slab.depth * v];
+    }
+    function ringPoint(rx, deg) { var a = deg * Math.PI / 180; return [rnd(CX + rx * Math.cos(a)), rnd(CY + rx * FLAT * Math.sin(a))]; }
+    function ringPath(rx) { var ry = rx * FLAT; return 'M' + (CX + rx) + ' ' + CY + 'A' + rx + ' ' + ry + ' 0 1 1 ' + (CX - rx) + ' ' + CY + 'A' + rx + ' ' + ry + ' 0 1 1 ' + (CX + rx) + ' ' + CY + 'Z'; }
+
+    /* ----- Bagian-bagian slab ----- */
+    var LEAF = 'M11 0H19A3 3 0 0 1 22 3V11A11 11 0 0 1 11 22H3A3 3 0 0 1 0 19V11A11 11 0 0 1 11 0Z';
+    var OPAC = [1, .9, .8, .9];
+    function leaves(fill, stroke) {
+        return [0, 90, 180, 270].map(function (t) {
+            return '<path d="' + LEAF + '" transform="rotate(' + t + ') translate(-25 -25)" fill="' + fill + '"' + (stroke ? ' stroke="' + stroke + '" stroke-width=".6"' : '') + '/>';
+        }).join('');
+    }
+    function faceMark(slab, side, u, v, w, h, fill, glow) {
+        var p = facePoint(slab, side, u, v);
+        return '<g transform="translate(' + p[0].toFixed(2) + ' ' + p[1].toFixed(2) + ') matrix(' + FACE[side] + ' 0 0)">' +
+            (glow ? '<rect x="' + (-w / 2 - 2) + '" y="' + (-h / 2 - 3) + '" width="' + (w + 4) + '" height="' + (h + 6) + '" rx="' + h + '" fill="' + fill + '" filter="url(#cv-blur-sm)" opacity=".75"/>' : '') +
+            '<rect x="' + (-w / 2) + '" y="' + (-h / 2) + '" width="' + w + '" height="' + h + '" rx="' + (h / 2) + '" fill="' + fill + '"/></g>';
+    }
+    function panelLine(slab, side, v) {
+        var a = facePoint(slab, side, .14, v), b = facePoint(slab, side, .86, v);
+        return '<line class="cv-s-panel" x1="' + a[0] + '" y1="' + a[1] + '" x2="' + b[0] + '" y2="' + b[1] + '" stroke="#A7A298" stroke-width=".9" opacity=".55"/>';
+    }
+    function fastener(slab, x, y) {
+        var p = proj(x, y, CX, slab.top);
+        return '<g transform="translate(' + p[0].toFixed(2) + ' ' + p[1].toFixed(2) + ') matrix(' + FACE.top + ' 0 0)"><circle class="cv-s-fast" r="6.5" fill="url(#cv-hole)" stroke="#C9C5BB" stroke-width="1"/></g>';
+    }
+    function slabBody(slab) {
+        var d = bodyPath(slab);
+        return '<g><path d="' + d + '" fill="url(#cv-side)"/><path d="' + d + '" fill="url(#cv-side-shade)"/><path class="cv-s-body" d="' + d + '" fill="none" stroke="#CFCBC1" stroke-width="1" opacity=".85"/></g>';
+    }
+    function slabTop(slab, groove) {
+        return '<g><path class="cv-s-bevel" d="' + topPath(slab) + '" fill="url(#cv-bevel)" stroke="#D9D6D0" stroke-width="1"/>' +
+            '<path class="cv-s-top" d="' + topPath(slab, 4.5) + '" fill="url(#cv-top)" stroke="#fff" stroke-width="1"/>' +
+            (groove !== undefined ? '<path class="cv-s-groove" d="' + topPath(slab, groove) + '" fill="none" stroke="#DAD6CE" stroke-width="1.2"/>' : '') + '</g>';
+    }
+    function coreLogo(x, y) {
+        function plane(lift) { return 'translate(' + x + ' ' + (y - lift) + ') matrix(' + FACE.top + ' 0 0) scale(1.42)'; }
+        var s = '<g><g transform="' + plane(0) + ' translate(2.4 2.4)" opacity=".22" filter="url(#cv-blur-sm)">' + leaves('#6E6556') + '</g>';
+        LOGO_SIDE.forEach(function (f, k) { s += '<g transform="' + plane(k) + '">' + leaves(f) + '</g>'; });
+        s += '<g transform="' + plane(LOGO_SIDE.length) + '"><rect x="-27" y="-27" width="54" height="54" fill="url(#cv-logo-top)" clip-path="url(#cv-mark-clip)"/>' + leaves('none', hex(mix(base, W, .8))) + '</g></g>';
+        return s;
+    }
+    function defs() {
+        return '<defs>' +
+            '<linearGradient id="cv-side" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#F3F1EB"/><stop offset=".46" stop-color="#E9E6DF"/><stop offset=".5" stop-color="#DAD6CD"/><stop offset="1" stop-color="#E3DFD7"/></linearGradient>' +
+            '<linearGradient id="cv-side-shade" x1="0" y1="0" x2="0" y2="1"><stop offset=".45" stop-color="#7C7566" stop-opacity="0"/><stop offset="1" stop-color="#7C7566" stop-opacity=".16"/></linearGradient>' +
+            '<linearGradient id="cv-bevel" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FFFFFF"/><stop offset="1" stop-color="#E6E2DA"/></linearGradient>' +
+            '<linearGradient id="cv-top" x1=".1" y1="0" x2=".9" y2="1"><stop offset="0" stop-color="#FFFFFF"/><stop offset="1" stop-color="#F2EFE9"/></linearGradient>' +
+            '<linearGradient id="cv-inlay" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#EFEBE4"/><stop offset="1" stop-color="#FFFFFF"/></linearGradient>' +
+            '<linearGradient id="cv-seam" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="' + ACC_HI + '"/><stop offset=".5" stop-color="' + ACC + '"/><stop offset="1" stop-color="' + ACC_LO + '"/></linearGradient>' +
+            '<linearGradient id="cv-slot" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#5F5A52"/><stop offset="1" stop-color="#8E897F"/></linearGradient>' +
+            '<linearGradient id="cv-logo-top" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="' + ACC_HI + '"/><stop offset=".55" stop-color="' + ACC + '"/><stop offset="1" stop-color="' + ACC_LO + '"/></linearGradient>' +
+            '<clipPath id="cv-mark-clip">' + leaves('#000') + '</clipPath>' +
+            '<radialGradient id="cv-hole" cx=".5" cy=".4" r=".7"><stop offset="0" stop-color="#D9D5CC"/><stop offset="1" stop-color="#F3F1EB"/></radialGradient>' +
+            '<filter id="cv-blur-sm" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="3.5"/></filter>' +
+            '<filter id="cv-blur-glow" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="9"/></filter>' +
+            '<filter id="cv-blur-spill" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="18"/></filter>' +
+            '</defs>';
+    }
+    var SEAM = { half: MID.half - 2, radius: MID.radius - 2, top: MID.top + MID.depth - 1, depth: SEAM_GAP + 1 };
+    function baseMarks() {
+        return faceMark(BASE, 'right', .5, .62, 4.5, 4.5, 'url(#cv-slot)') + faceMark(BASE, 'right', .58, .62, 4.5, 4.5, 'url(#cv-slot)') +
+            faceMark(BASE, 'right', .66, .62, 4.5, 4.5, 'url(#cv-slot)') + faceMark(BASE, 'left', .32, .62, 4.5, 4.5, 'url(#cv-slot)') +
+            faceMark(BASE, 'left', .4, .62, 4.5, 4.5, 'url(#cv-slot)');
+    }
+    function midMarks() {
+        return panelLine(MID, 'left', .78) + panelLine(MID, 'right', .78) +
+            faceMark(MID, 'left', .62, .42, 34, 7.5, 'url(#cv-slot)') + faceMark(MID, 'left', .34, .42, 5, 5, 'url(#cv-slot)') +
+            faceMark(MID, 'left', .42, .42, 5, 5, 'url(#cv-slot)') + faceMark(MID, 'right', .44, .42, 5, 5, 'url(#cv-slot)') +
+            faceMark(MID, 'right', .52, .42, 5, 5, 'url(#cv-slot)') + faceMark(MID, 'right', .68, .42, 22, 4.5, 'url(#cv-slot)') +
+            '<g class="cv-seam-pulse">' + faceMark(MID, 'left', .2, .42, 7, 2.6, ACC, true) + '</g>' +
+            fastener(MID, 0, -MID.half + 28) + fastener(MID, -MID.half + 28, 0) + fastener(MID, MID.half - 28, 0) + fastener(MID, 0, MID.half - 28);
+    }
+    function inlay(slab) {
+        return '<path class="cv-s-inl" d="' + topPath(slab, 19) + '" fill="url(#cv-inlay)" stroke="#DDD9D1" stroke-width="1.2"/><path class="cv-s-inl2" d="' + topPath(slab, 20.5) + '" fill="none" stroke="#fff" stroke-width="1" opacity=".9"/>';
+    }
+    function restCore() {
+        return '<svg viewBox="0 0 1000 1000" role="img" aria-label="Inti Essay Grader">' + defs() +
+            slabBody(BASE) + slabTop(BASE, 10) + panelLine(BASE, 'left', .3) + panelLine(BASE, 'right', .3) + baseMarks() +
+            '<g class="cv-seam-pulse"><path d="' + topPath(MID, 4, CX, BASE.top - MID.top) + '" fill="' + ACC + '" opacity=".3" filter="url(#cv-blur-spill)"/>' +
+            '<path d="' + bodyPath(SEAM) + '" fill="' + ACC + '" opacity=".6" filter="url(#cv-blur-glow)"/></g>' +
+            '<path d="' + bodyPath(SEAM) + '" fill="url(#cv-seam)"/>' +
+            slabBody(MID) + slabTop(MID, 11) + midMarks() +
+            slabBody(CAP) + slabTop(CAP) + inlay(CAP) + coreLogo(CX, CAP.top) + '</svg>';
+    }
+    function coreShadow() {
+        var floor = ext(BASE, { top: BASE.top + BASE.depth + 30 });
+        return '<svg viewBox="0 0 1000 1000" aria-hidden="true"><defs>' +
+            '<filter id="cv-blur-lg" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="26"/></filter>' +
+            '<filter id="cv-blur-md" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="9"/></filter></defs>' +
+            '<path d="' + topPath(floor, -14) + '" fill="#8A8377" opacity=".2" filter="url(#cv-blur-lg)"/>' +
+            '<path d="' + topPath(floor, 6) + '" fill="#5D574D" opacity=".22" filter="url(#cv-blur-md)"/></svg>';
+    }
+    function depthBackdrop() {
+        var N = [[118, 132], [318, 82], [690, 96], [884, 188], [936, 470], [70, 512], [150, 858], [850, 846]];
+        return '<svg viewBox="0 0 1000 1000" aria-hidden="true"><defs><linearGradient id="cv-glass" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".7"/><stop offset="1" stop-color="#fff" stop-opacity=".12"/></linearGradient></defs>' +
+            '<g class="cv-s-glass" fill="url(#cv-glass)" stroke="#E3E0D9" stroke-width="1" opacity=".35"><rect width="290" height="250" rx="22" transform="matrix(.866 -.5 0 1 232 300)"/><rect width="290" height="250" rx="22" transform="matrix(.866 .5 0 1 520 150)"/></g>' +
+            '<g class="cv-nd" fill="#fff" stroke="#CFCBC1" stroke-width="1">' + N.map(function (n, i) { return '<circle cx="' + n[0] + '" cy="' + n[1] + '" r="' + (i % 3 === 0 ? 4 : 3) + '" opacity=".85"/>'; }).join('') + '</g></svg>';
+    }
+    function techBackdrop() {
+        var dots = '', i, a, r;
+        for (i = 0; i < 26; i++) {
+            a = i * 137.5 * Math.PI / 180; r = 160 + ((i * 53) % 340);
+            dots += '<circle cx="' + rnd(CX + r * Math.cos(a) * 1.02) + '" cy="' + rnd(CY + r * Math.sin(a) * FLAT * 1.6) + '" r="' + (.8 + (i % 3) * .5) + '" opacity="' + (.35 + (i % 4) * .12) + '"/>';
+        }
+        var crosses = [[212, 292], [790, 690], [860, 430], [150, 560]].map(function (p) { return 'M' + (p[0] - 5) + ' ' + p[1] + 'h10M' + p[0] + ' ' + (p[1] - 5) + 'v10'; }).join('');
+        return '<svg viewBox="0 0 1000 1000" aria-hidden="true" class="cv-ink"><defs>' +
+            '<linearGradient id="cv-axis-v" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="currentColor" stop-opacity="0"/><stop offset=".5" stop-color="currentColor" stop-opacity=".9"/><stop offset="1" stop-color="currentColor" stop-opacity="0"/></linearGradient>' +
+            '<linearGradient id="cv-axis-h" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="currentColor" stop-opacity="0"/><stop offset=".5" stop-color="currentColor" stop-opacity="1"/><stop offset="1" stop-color="currentColor" stop-opacity="0"/></linearGradient></defs>' +
+            '<rect x="' + (CX - .5) + '" y="110" width="1" height="780" fill="url(#cv-axis-v)"/><rect x="70" y="' + (CY - .5) + '" width="860" height="1" fill="url(#cv-axis-h)"/>' +
+            '<g fill="currentColor">' + dots + '</g><path d="' + crosses + '" fill="none" stroke="currentColor" stroke-width="1" opacity=".7"/></svg>';
+    }
+    function orbitSystem() {
+        return '<svg viewBox="0 0 1000 1000" aria-hidden="true" class="cv-ink"><g fill="none" stroke="currentColor" stroke-width="1">' +
+            '<ellipse cx="' + CX + '" cy="' + CY + '" rx="' + RING_RX[0] + '" ry="' + RING_RX[0] * FLAT + '" opacity="1"/>' +
+            '<ellipse cx="' + CX + '" cy="' + CY + '" rx="' + RING_RX[1] + '" ry="' + RING_RX[1] * FLAT + '" opacity=".8"/></g></svg>';
+    }
+    var ORBIT_SEC = [70, 95];
+    var NODES = [[0, 20, 7], [0, 110, 5.5], [0, 200, 8], [0, 290, 6], [1, 60, 6], [1, 132, 8], [1, 204, 5.5], [1, 276, 7], [1, 348, 6.5]];
+    function crystal(s) {
+        return '<g filter="url(#cv-cr-shadow)"><circle r="' + s * 1.55 + '" fill="url(#cv-cr-halo)"/><circle r="' + s + '" fill="url(#cv-cr-body)"/><circle r="' + s + '" fill="url(#cv-cr-refract)"/>' +
+            '<circle r="' + (s - .5) + '" fill="none" stroke="url(#cv-cr-rim)" stroke-width="1"/>' +
+            '<ellipse cx="' + (-s * .32) + '" cy="' + (-s * .4) + '" rx="' + s * .36 + '" ry="' + s * .2 + '" transform="rotate(-30 ' + (-s * .32) + ' ' + (-s * .4) + ')" fill="#fff" opacity=".95"/>' +
+            '<circle cx="' + s * .34 + '" cy="' + (-s * .5) + '" r="' + Math.max(.7, s * .07) + '" fill="#fff" opacity=".85"/></g>';
+    }
+    function particles(half) {
+        var clip = half === 'back' ? '<rect x="-200" y="-200" width="1400" height="' + (CY + 200) + '"/>' : '<rect x="-200" y="' + CY + '" width="1400" height="700"/>';
+        var s = '<svg viewBox="0 0 1000 1000" aria-hidden="true"><defs><clipPath id="cv-clip-' + half + '">' + clip + '</clipPath>' +
+            '<linearGradient id="cv-cr-body" x1=".15" y1=".1" x2=".85" y2=".95"><stop offset="0" stop-color="' + ACC_HI + '" stop-opacity=".95"/><stop offset=".5" stop-color="' + ACC + '" stop-opacity=".9"/><stop offset="1" stop-color="' + CRY_DK + '" stop-opacity=".95"/></linearGradient>' +
+            '<radialGradient id="cv-cr-refract" cx=".6" cy=".78" r=".45"><stop offset="0" stop-color="#fff" stop-opacity=".8"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient>' +
+            '<linearGradient id="cv-cr-rim" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".95"/><stop offset="1" stop-color="' + CRY_RIM + '" stop-opacity=".55"/></linearGradient>' +
+            '<radialGradient id="cv-cr-halo" cx=".5" cy=".5" r=".5"><stop offset=".5" stop-color="' + ACC + '" stop-opacity=".22"/><stop offset="1" stop-color="' + ACC + '" stop-opacity="0"/></radialGradient>' +
+            '<filter id="cv-cr-shadow" x="-80%" y="-80%" width="260%" height="260%"><feDropShadow dx="0" dy="2.5" stdDeviation="2.5" flood-color="' + CRY_SH + '" flood-opacity=".25"/></filter></defs>' +
+            '<g clip-path="url(#cv-clip-' + half + ')">';
+        NODES.forEach(function (n) {
+            var rx = RING_RX[n[0]], pt = ringPoint(rx, n[1]), dur = ORBIT_SEC[n[0]], rev = n[0] === 1, st = n[1] / 360, begin = -dur * (rev ? 1 - st : st);
+            s += '<g' + (reduce ? ' transform="translate(' + pt[0].toFixed(1) + ' ' + pt[1].toFixed(1) + ')"' : '') + '>' + crystal(n[2]) +
+                (reduce ? '' : '<animateMotion dur="' + dur + 's" begin="' + begin + 's" repeatCount="indefinite" path="' + ringPath(rx) + '"' + (rev ? ' keyPoints="1;0" keyTimes="0;1" calcMode="linear"' : '') + '/>') + '</g>';
+        });
+        return s + '</g></svg>';
+    }
+
+    /* ----- Tata letak exploded view ----- */
+    var EXPLODE = { gap: 94, aiLift: 12, topPlateY: 230, stagger: .05, scales: [.63, .62, .7, 1.07, 1.06] };
+    var PLATE = [ext(BASE, { top: BASE.top + 17, depth: 17 }), ext(BASE, { top: BASE.top, depth: 17 }), MID, ext(CAP, { top: CAP.top + 7, depth: 7 }), ext(CAP, { top: CAP.top, depth: 7 })];
+    var AI = 2, SKIRT = [0, 4, 0, 10, 10];
+    var TARGET = PLATE.map(function (_, i) { return EXPLODE.topPlateY + (PLATE.length - 1 - i) * EXPLODE.gap - (i === AI ? EXPLODE.aiLift : 0); });
+    var TRAVEL = PLATE.map(function (s, i) { return TARGET[i] - s.top; });
+    function clamp(v) { return Math.min(1, Math.max(0, v)); }
+    function pProg(i, p) { var d = Math.abs(i - AI) * EXPLODE.stagger; return clamp((p - d) / (1 - d)); }
+    function tipX(i, side) { var s = PLATE[i]; return CX + (side === 'right' ? 1 : -1) * .866 * (2 * s.half - .586 * s.radius) * EXPLODE.scales[i]; }
+    function cornerY(i) { return TARGET[i] + PLATE[i].depth / 2; }
+    function plateNumber(slab, n, main) {
+        var k = slab.half * .56, p = proj(k, k, CX, slab.top), plane = 'matrix(' + FACE.top + ' 0 0) rotate(-45)', label = (n < 10 ? '0' : '') + n;
+        var t = ' text-anchor="middle" dominant-baseline="central" font-size="25" font-weight="500" letter-spacing="2.5" font-family="inherit"';
+        return '<g transform="translate(' + p[0].toFixed(2) + ' ' + p[1].toFixed(2) + ')" aria-hidden="true"><text class="cv-n-sh"' + t + ' transform="translate(0 .9) ' + plane + '" fill="#FFFFFF" opacity=".95">' + label + '</text>' +
+            '<text' + (main ? '' : ' class="cv-n-lb"') + t + ' transform="' + plane + '" fill="' + (main ? ACC_LO : '#CBC6BC') + '">' + label + '</text></g>';
+    }
+    function plateG(i, inner) {
+        var slab = PLATE[i];
+        return '<g class="cv-plate" data-i="' + i + '">' +
+            (i > 0 ? '<path class="cv-psh" d="' + topPath(slab, -6, CX, slab.depth + 34) + '" fill="#6E6556" filter="url(#cv-blur-spill)" opacity="0"/>' : '') +
+            (SKIRT[i] > 0 ? '<g class="cv-psk" opacity="0">' + slabBody(ext(slab, { top: slab.top + slab.depth - 1, depth: SKIRT[i] + 1 })) + '</g>' : '') + inner + '</g>';
+    }
+    function explodedCore() {
+        var s = '<svg viewBox="0 0 1000 1000" aria-hidden="true">' + defs();
+        s += plateG(0, slabBody(PLATE[0]) + slabTop(PLATE[0], 10) + plateNumber(PLATE[0], 1, false) + baseMarks());
+        s += plateG(1, slabBody(PLATE[1]) + slabTop(PLATE[1], 10) + plateNumber(PLATE[1], 2, false) + panelLine(BASE, 'left', .3) + panelLine(BASE, 'right', .3));
+        s += plateG(AI, '<g class="cv-seam-pulse"><path d="' + topPath(MID, 4, CX, BASE.top - MID.top) + '" fill="' + ACC + '" opacity=".3" filter="url(#cv-blur-spill)"/>' +
+            '<path d="' + bodyPath(SEAM) + '" fill="' + ACC + '" opacity=".6" filter="url(#cv-blur-glow)"/></g>' +
+            '<path class="cv-strong" d="' + bodyPath(SEAM) + '" fill="' + ACC + '" filter="url(#cv-blur-glow)" opacity="0"/>' +
+            '<path d="' + bodyPath(SEAM) + '" fill="url(#cv-seam)"/>' + slabBody(MID) + slabTop(MID, 11) + plateNumber(MID, 3, true) + midMarks() +
+            '<g transform="translate(' + CX + ' ' + MID.top + ') matrix(' + FACE.top + ' 0 0)">' +
+            '<circle class="cv-ai-spill" r="86" fill="' + ACC + '" filter="url(#cv-blur-spill)" opacity="0"/>' +
+            '<circle class="cv-ai-rim" r="56" fill="none" stroke="' + ACC_LO + '" stroke-width="1.4" opacity="0"/>' +
+            '<circle class="cv-ai-halo" r="38" fill="none" stroke="' + ACC_LO + '" stroke-width="1" stroke-dasharray="3 6" opacity="0"/>' +
+            '<circle class="cv-ai-core" r="9" fill="' + ACC + '" stroke="' + ACC_LO + '" stroke-width="1" opacity="0"/></g>');
+        s += plateG(3, slabBody(PLATE[3]) + slabTop(PLATE[3]) + inlay(PLATE[3]) + plateNumber(PLATE[3], 4, false));
+        s += plateG(4, slabBody(PLATE[4]) + slabTop(PLATE[4]) + inlay(CAP) + coreLogo(CX, CAP.top));
+        return s + '</svg>';
+    }
+
+    /* ----- Ikon & kartu ----- */
+    var LN = {
+        form: '<rect width="8" height="4" x="8" y="2" rx="1" ry="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="M12 11h4"/><path d="M12 16h4"/><path d="M8 11h.01"/><path d="M8 16h.01"/>',
+        pen: '<path d="M12.5 22H18a2 2 0 0 0 2-2V7l-5-5H6a2 2 0 0 0-2 2v9.5"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M13.378 15.626a1 1 0 1 0-3.004-3.004l-5.01 5.012a2 2 0 0 0-.506.854l-.837 2.87a.5.5 0 0 0 .62.62l2.87-.837a2 2 0 0 0 .854-.506z"/>',
+        check: '<rect width="8" height="4" x="8" y="2" rx="1" ry="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="m9 14 2 2 4-4"/>',
+        chart: '<line x1="12" x2="12" y1="20" y2="10"/><line x1="18" x2="18" y1="20" y2="4"/><line x1="6" x2="6" y1="20" y2="16"/>',
+        link: '<path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>',
+        key: '<path d="m15.5 7.5 2.3 2.3a1 1 0 0 0 1.4 0l2.1-2.1a1 1 0 0 0 0-1.4L19 4"/><path d="m21 2-9.6 9.6"/><circle cx="7.5" cy="15.5" r="5.5"/>',
+        list: '<path d="m3 17 2 2 4-4"/><path d="m3 7 2 2 4-4"/><path d="M13 6h8"/><path d="M13 12h8"/><path d="M13 18h8"/>',
+        sliders: '<line x1="21" x2="14" y1="4" y2="4"/><line x1="10" x2="3" y1="4" y2="4"/><line x1="21" x2="12" y1="12" y2="12"/><line x1="8" x2="3" y1="12" y2="12"/><line x1="21" x2="16" y1="20" y2="20"/><line x1="12" x2="3" y1="20" y2="20"/><line x1="14" x2="14" y1="2" y2="6"/><line x1="8" x2="8" y1="10" y2="14"/><line x1="16" x2="16" y1="18" y2="22"/>',
+        eye: '<path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0"/><circle cx="12" cy="12" r="3"/>',
+        pencil: '<path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/>',
+        note: '<path d="M22 17a2 2 0 0 1-2 2H6.828a2 2 0 0 0-1.414.586l-2.202 2.202A.71.71 0 0 1 2 21.286V5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2z"/>',
+        mouse: '<path d="M4.037 4.688a.495.495 0 0 1 .651-.651l16 6.5a.5.5 0 0 1-.063.947l-6.124 1.58a2 2 0 0 0-1.438 1.435l-1.579 6.126a.5.5 0 0 1-.947.063z"/>'
+    };
+    var LG = {
+        forms: '<path d="M5 2h9l5 5v13a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2z" fill="#7248B9"/><path d="M14 2l5 5h-5z" fill="#B39DDB"/><rect x="7" y="11" width="2" height="2" rx=".5" fill="#fff"/><rect x="10.5" y="11" width="6" height="2" rx=".5" fill="#fff"/><rect x="7" y="15" width="2" height="2" rx=".5" fill="#fff"/><rect x="10.5" y="15" width="6" height="2" rx=".5" fill="#fff"/>',
+        sheets: '<path d="M5 2h9l5 5v13a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2z" fill="#0F9D58"/><path d="M14 2l5 5h-5z" fill="#87CEAC"/><rect x="7" y="11" width="10" height="7" rx=".8" fill="#fff"/><path d="M7 14.5h10M11.5 11v7" stroke="#0F9D58" stroke-width="1"/>',
+        google: '<text x="12" y="18" text-anchor="middle" font-size="19" font-weight="700" font-family="Arial, sans-serif" fill="#4285F4">G</text>',
+        excel: '<rect x="3" y="3" width="18" height="18" rx="3.5" fill="#1D6F42"/><path d="M8.5 8.5l7 7M15.5 8.5l-7 7" stroke="#fff" stroke-width="2" stroke-linecap="round"/>',
+        gemini: '<path transform="translate(1 1) scale(1.375)" fill="#448aff" d="M15 8.014A7.457 7.457 0 0 0 8.014 15h-.028A7.456 7.456 0 0 0 1 8.014v-.028A7.456 7.456 0 0 0 7.986 1h.028A7.457 7.457 0 0 0 15 7.986z"/>',
+        ollama: '<ellipse cx="12" cy="13.5" rx="6.6" ry="7.5" fill="#fff" stroke="#171717" stroke-width="1.6"/><path d="M7.6 7.5 6.6 3M16.4 7.5l1-4.5" stroke="#171717" stroke-width="1.8" stroke-linecap="round"/><circle cx="9.4" cy="12.5" r="1" fill="#171717"/><circle cx="14.6" cy="12.5" r="1" fill="#171717"/><ellipse cx="12" cy="16.4" rx="2.2" ry="1.5" fill="#171717"/>',
+        groq: '<rect x="3" y="3" width="18" height="18" rx="5" fill="#F55036"/><path d="M12 7.5a4.5 4.5 0 1 0 0 9h2.5v-3.2H12" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round"/>'
+    };
+    function icon(key, cls) { return '<svg viewBox="0 0 24 24" aria-hidden="true" class="' + (cls || '') + '">' + (LN[key] || '') + '</svg>'; }
+    function logo(key) {
+        if (LG[key]) { return '<svg viewBox="0 0 24 24" aria-hidden="true">' + LG[key] + '</svg>'; }
+        return icon(key, 'ln');
+    }
+    function esc(t) { return String(t).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+    function appsHtml(st, tiles) {
+        var h = '<div class="cv-apps">' + st.apps.map(function (a) {
+            return tiles ? '<span class="cv-tile">' + logo(a) + '</span>' : '<span class="cv-ap">' + logo(a) + '</span>';
+        }).join('') + '</div>';
+        return h;
+    }
+    function cardBody(i) {
+        var st = STAGES[i], main = !!st.main;
+        var h = '<div class="cv-cb"><span class="cv-no">' + (i < 9 ? '0' : '') + (i + 1) + '</span>' +
+            '<div class="cv-ttl"><p>' + esc(st.title) + '</p>' + (main ? '<span class="cv-main-tag">' + esc(st.tag || 'Main layer') + '</span>' : '') + '</div>';
+        if (st.icon && !main) { h += '<span class="cv-ic">' + icon(st.icon, 'ln') + '</span>'; }
+        h += '<div class="cv-it"><p>' + st.items.map(esc).join(' · ') + '</p>' + (main ? appsHtml(st, true) : '') + '</div>';
+        if (!main) { h += '<div class="cv-side">' + appsHtml(st, false) + '</div>'; }
+        return h + '</div>';
+    }
+    var CARDS = { left: { edge: 0, width: 31 }, right: { edge: 0, width: 29 }, restInset: 10, outward: 2, beadSeconds: 1.6 };
+    function dir(i) { return STAGES[i].side === 'left' ? -1 : 1; }
+
+    /* ----- Rakit DOM ----- */
+    function boot() {
+    var cardsHtml = STAGES.map(function (st, i) {
+        var c = CARDS[st.side], left = st.side === 'left' ? c.edge : 100 - c.edge - c.width;
+        return '<li style="top:' + (cornerY(i) / 10) + '%;left:' + left + '%;width:' + c.width + '%"><div class="cv-card' + (st.main ? ' cv-main' : '') + '" data-i="' + i + '">' + cardBody(i) + '</div></li>';
+    }).join('');
+    var connHtml = STAGES.map(function (st, i) {
+        var c = CARDS[st.side], d = st.side === 'right' ? 1 : -1;
+        var cardEdge = st.side === 'left' ? (c.edge + c.width) * 10 : (100 - c.edge - c.width) * 10;
+        var px = tipX(i, st.side) + d * 7, nx = cardEdge - d * 10, y = cornerY(i);
+        return '<svg viewBox="0 0 1000 1000" aria-hidden="true" data-i="' + i + '" data-px="' + px + '" data-nx="' + nx + '" style="opacity:0">' +
+            '<line x1="' + px + '" x2="' + nx + '" y1="' + y + '" y2="' + y + '" stroke="#CFCAC1" stroke-width="1"/>' +
+            '<line class="lit-line" x1="' + px + '" x2="' + nx + '" y1="' + y + '" y2="' + y + '" stroke="' + ACC_LO + '" stroke-width="1.3" opacity="0"/>' +
+            '<circle cx="' + px + '" cy="' + y + '" r="2.6" fill="#A8A399"/>' +
+            '<circle class="halo" cx="' + nx + '" cy="' + y + '" r="' + (st.main ? 10 : 8) + '" fill="' + ACC + '" opacity="' + (st.main ? .4 : .25) + '"/>' +
+            '<circle cx="' + nx + '" cy="' + y + '" r="3.6" fill="' + ACC + '" stroke="' + ACC_LO + '" stroke-width="1"/>' +
+            '<circle class="bead" cx="' + nx + '" cy="' + y + '" r="2.8" fill="' + ACC + '" stroke="' + ACC_LO + '" stroke-width=".8" opacity="0"/></svg>';
+    }).join('');
+
+    host.innerHTML =
+        '<div class="cv-in">' +
+        '<div class="cv-halo" aria-hidden="true"></div>' +
+        '<div class="cv-fade"><div class="cv-layer cv-px" data-reach="-5">' + depthBackdrop() + techBackdrop() + '</div></div>' +
+        '<div class="cv-layer cv-px" data-reach="12"><div class="cv-layer cv-orb">' + orbitSystem() + particles('back') + '</div></div>' +
+        '<div class="cv-layer cv-shadow">' + coreShadow() + '</div>' +
+        '<div class="cv-persp"><div class="cv-rot"><div class="cv-float">' +
+        '<div class="cv-layer cv-rest">' + restCore() + '</div><div class="cv-layer cv-exp" style="opacity:0">' + explodedCore() + '</div>' +
+        '<div class="cv-conn">' + connHtml + '</div></div></div></div>' +
+        '<div class="cv-layer cv-px" data-reach="12"><div class="cv-layer cv-orb">' + particles('front') + '</div></div>' +
+        '<div class="cv-persp"><div class="cv-rot"><div class="cv-float"><ul class="cv-cards" aria-label="Alur kerja Essay Grader">' + cardsHtml + '</ul></div></div></div>' +
+        '</div>' +
+        '<p class="cv-hint" aria-hidden="true"><svg viewBox="0 0 24 24" class="ln">' + LN.mouse + '</svg><span class="hov">Arahkan kursor untuk melihat alurnya</span><span class="tap">Ketuk untuk melihat alurnya</span></p>' +
+        '<button type="button" class="cv-hit" aria-expanded="false" aria-label="Tampilkan cara kerja Essay Grader"></button>';
+
+    function q(s, r) { return (r || host).querySelector(s); }
+    function qa(s, r) { return Array.prototype.slice.call((r || host).querySelectorAll(s)); }
+
+    var elRest = q('.cv-rest'), elExp = q('.cv-exp'), elShadow = q('.cv-shadow'), elHint = q('.cv-hint'), hit = q('.cv-hit');
+    var pxLayers = qa('.cv-px'), orbLayers = qa('.cv-orb'), rots = qa('.cv-rot'), svgParticles = qa('.cv-orb svg').filter(function (s) { return s.querySelector('animateMotion'); });
+    var cardEls = qa('.cv-card'), connEls = qa('.cv-conn svg');
+    var plates = qa('.cv-plate').map(function (g) {
+        var b = g.getBBox();
+        return { g: g, cx: b.x + b.width / 2, cy: b.y + b.height / 2, sh: g.querySelector('.cv-psh'), sk: g.querySelector('.cv-psk') };
+    });
+    var aiSpill = q('.cv-ai-spill'), aiRim = q('.cv-ai-rim'), aiHalo = q('.cv-ai-halo'), aiCore = q('.cv-ai-core'), strong = q('.cv-strong');
+
+    /* ----- Animasi: pegas, parallax, tilt ----- */
+    var EXPL = { k: 105, c: 25, m: 1 }, PTR = { k: 55, c: 18, m: .9 }, MAXTILT = 3.5;
+    var prog = { x: 0, v: 0, t: 0 }, sx = { x: 0, v: 0, t: 0 }, sy = { x: 0, v: 0, t: 0 };
+    var open = false, openAt = 0, hovered = null, onScreen = true, pageVisible = !document.hidden, raf = 0, last = 0, pointerType = 'mouse';
+    function step(s, P, h) { var a = (-P.k * (s.x - s.t) - P.c * s.v) / P.m; s.v += a * h; s.x += s.v * h; }
+    function settled(s) { return Math.abs(s.x - s.t) < 1e-3 && Math.abs(s.v) < 1e-3; }
+    function lerpRange(v, a, b, o0, o1) { var t = clamp((v - a) / (b - a)); return o0 + (o1 - o0) * t; }
+    function ease(k) { return k * k * (3 - 2 * k); }
+
+    function render(now) {
+        var p = prog.x, x = sx.x, y = sy.x;
+        elRest.style.opacity = clamp(1 - p / .04);
+        elExp.style.opacity = clamp(p / .03);
+        elShadow.style.opacity = 1 - p * .45;
+        var orbOp = lerpRange(p, 0, .6, 1, .15);
+        orbLayers.forEach(function (el) { el.style.opacity = orbOp; });
+        elHint.style.opacity = clamp(1 - p / .25);
+        pxLayers.forEach(function (el) { var r = parseFloat(el.getAttribute('data-reach')); el.style.transform = 'translate(' + (x * r).toFixed(2) + 'px,' + (y * r).toFixed(2) + 'px)'; });
+        var tr = 'rotateX(' + (y * -MAXTILT + p * 4).toFixed(3) + 'deg) rotateY(' + (x * MAXTILT).toFixed(3) + 'deg)';
+        rots.forEach(function (el) { el.style.transform = tr; });
+        plates.forEach(function (o, i) {
+            var pp = pProg(i, p), ty = TRAVEL[i] * pp, sc = 1 + (EXPLODE.scales[i] - 1) * pp;
+            o.g.setAttribute('transform', 'translate(0 ' + ty.toFixed(2) + ') translate(' + o.cx + ' ' + o.cy + ') scale(' + sc.toFixed(4) + ') translate(' + (-o.cx) + ' ' + (-o.cy) + ')');
+            if (o.sh) { o.sh.setAttribute('opacity', (pp * .16).toFixed(3)); }
+            if (o.sk) { o.sk.setAttribute('opacity', pp.toFixed(3)); }
+        });
+        var on = clamp((p - .5) / .4), halo = on * .55;
+        aiRim.setAttribute('opacity', (on * .9).toFixed(3)); aiHalo.setAttribute('opacity', halo.toFixed(3));
+        aiCore.setAttribute('opacity', (on * .9).toFixed(3)); aiSpill.setAttribute('opacity', (halo * .35).toFixed(3));
+        strong.setAttribute('opacity', (clamp((p - .4) / .5) * .6).toFixed(3));
+        var cShow = lerpRange(p, .55, .9, 0, 1), cardOp = lerpRange(p, .35, .9, 0, 1);
+        cardEls.forEach(function (el, i) {
+            el.style.opacity = cardOp;
+            el.style.transform = 'translateX(' + (-dir(i) * CARDS.restInset + (dir(i) * CARDS.outward + dir(i) * CARDS.restInset) * clamp(p)).toFixed(2) + 'px)';
+        });
+        connEls.forEach(function (svg, i) {
+            svg.style.opacity = cShow;
+            var bead = svg.querySelector('.bead'), k = 0, local, m;
+            if (open && !reduce) {
+                local = (now - openAt) / 1000 - (.5 + i * .25);
+                if (local > 0) { m = local % (CARDS.beadSeconds + 1.4); k = m < CARDS.beadSeconds ? ease(m / CARDS.beadSeconds) : 0; }
+            }
+            var px = parseFloat(svg.getAttribute('data-px')), nx = parseFloat(svg.getAttribute('data-nx'));
+            bead.setAttribute('cx', (nx + (px - nx) * k).toFixed(2));
+            bead.setAttribute('opacity', (cShow * Math.sin(Math.PI * k)).toFixed(3));
+        });
+    }
+    function wantsRun() { return onScreen && pageVisible && host.offsetParent !== null; }
+    function tick(ts) {
+        raf = 0;
+        if (!wantsRun()) { return; }
+        var dt = Math.min(.05, (ts - last) / 1000 || .016), n = Math.max(1, Math.ceil(dt / .008)), h = dt / n, i;
+        last = ts;
+        if (reduce) { prog.x = prog.t; prog.v = 0; }
+        else { for (i = 0; i < n; i++) { step(prog, EXPL, h); step(sx, PTR, h); step(sy, PTR, h); } }
+        render(ts);
+        if (!(settled(prog) && settled(sx) && settled(sy)) || (open && !reduce)) { raf = requestAnimationFrame(tick); }
+        else { prog.x = prog.t; prog.v = 0; sx.x = sx.t; sx.v = 0; sy.x = sy.t; sy.v = 0; render(ts); }
+    }
+    function wake() { if (!raf && wantsRun()) { last = performance.now(); raf = requestAnimationFrame(tick); } }
+    function syncBeads() {
+        var paused = open || !onScreen || !pageVisible;
+        svgParticles.forEach(function (s) { try { if (paused) { s.pauseAnimations(); } else { s.unpauseAnimations(); } } catch (e) { /* abaikan */ } });
+    }
+    function setOpen(v) {
+        if (open === v) { return; }
+        open = v; prog.t = v ? 1 : 0;
+        if (v) { openAt = performance.now(); }
+        host.classList.toggle('is-open', v);
+        hit.setAttribute('aria-expanded', v ? 'true' : 'false');
+        cardEls.forEach(function (el) { el.setAttribute('aria-hidden', v ? 'false' : 'true'); });
+        syncBeads(); wake();
+    }
+    function setHover(i) {
+        hovered = i;
+        cardEls.forEach(function (el, k) { el.classList.toggle('is-lit', k === i); });
+        connEls.forEach(function (svg, k) {
+            svg.querySelector('.lit-line').setAttribute('opacity', k === i ? '.9' : '0');
+            svg.querySelector('.halo').setAttribute('opacity', (k === i || STAGES[k].main) ? '.4' : '.25');
+        });
+        if (i !== null && !reduce) { setOpen(true); }
+    }
+
+    host.addEventListener('pointermove', function (e) {
+        if (reduce || e.pointerType !== 'mouse') { return; }
+        var b = host.getBoundingClientRect();
+        sx.t = ((e.clientX - b.left) / b.width - .5) * 2; sy.t = ((e.clientY - b.top) / b.height - .5) * 2;
+        wake();
+    });
+    host.addEventListener('pointerleave', function () { sx.t = 0; sy.t = 0; setHover(null); setOpen(false); wake(); });
+    hit.addEventListener('pointerdown', function (e) { pointerType = e.pointerType; });
+    hit.addEventListener('pointerenter', function (e) { if (e.pointerType === 'mouse' && !reduce) { setOpen(true); } });
+    hit.addEventListener('click', function (e) { if (e.detail === 0 || pointerType !== 'mouse') { setOpen(!open); } });
+    hit.addEventListener('blur', function () { setOpen(false); });
+    cardEls.forEach(function (el, i) {
+        el.addEventListener('pointerenter', function (e) { if (e.pointerType === 'mouse') { setHover(i); } });
+        el.addEventListener('pointerleave', function () { setHover(null); });
+        el.setAttribute('aria-hidden', 'true');
+    });
+    if ('IntersectionObserver' in window) {
+        new IntersectionObserver(function (en) { onScreen = en[0].isIntersecting; syncBeads(); wake(); }, { rootMargin: '40px' }).observe(host);
+    }
+    document.addEventListener('visibilitychange', function () { pageVisible = !document.hidden; syncBeads(); wake(); });
+    window.addEventListener('resize', wake, { passive: true });
+    render(performance.now());
+    }
+    function tryBoot() {
+        if (host.offsetParent === null) { return false; }
+        boot();
+        return true;
+    }
+    if (!tryBoot()) {
+        var onSize = function () { if (tryBoot()) { window.removeEventListener('resize', onSize); } };
+        window.addEventListener('resize', onSize);
+    }
 })();
 </script>
 

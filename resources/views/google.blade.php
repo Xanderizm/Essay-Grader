@@ -7,6 +7,16 @@
     .google-grid .card { max-width: none !important; margin-bottom: 0 !important; display: flex; flex-direction: column; justify-content: space-between; height: 100%; }
     @media (max-width: 820px) {
         .google-grid { grid-template-columns: 1fr; }
+        .google-grid .card > div,
+        .google-grid .card > form { min-width: 0; }
+        .google-grid .row-actions { flex-direction: column; align-items: stretch; }
+        .google-grid .row-actions .btn,
+        .google-grid .card .btn,
+        .google-grid .card button[type="submit"] {
+            width: 100%;
+            text-align: center;
+            min-height: 44px;
+        }
     }
 </style>
 @endpush

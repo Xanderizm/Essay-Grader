@@ -76,8 +76,10 @@
         /* ---------- Hero (memakai ulang .hero milik proyek) ---------- */
         #isi:has(.ml-header) .hero { display: block; padding: 6px 0 4px; }
         #isi:has(.ml-header) .hero > div:first-child::before {
-            content: "\2605  AI GRADING ASSISTANT  \2605"; display: inline-block; margin-bottom: 12px; padding: 5px 12px; transform: rotate(-1deg);
+            content: "\2605  AI GRADING ASSISTANT  \2605"; display: block; align-self: flex-start; width: fit-content; max-width: 100%; margin-bottom: 12px; padding: 5px 12px; transform: rotate(-1deg);
             background: var(--lime); color: var(--dark-text); border: 1.5px solid var(--ml-bd); border-radius: 8px; box-shadow: 2px 2px 0 var(--ml-sh); font: 800 11px/1 var(--mono); letter-spacing: .02em; }
+        #isi:has(.ml-header) .hero-eyebrow { display: none; }
+        #isi:has(.ml-header) .hero-actions .btn[href="#ml-alur"], #isi:has(.ml-header) .hero-actions .btn[href="#cara-kerja"] { display: inline-flex; align-items: center; }
         #isi:has(.ml-header) .hero h1 { font-size: clamp(30px, 9vw, 38px); line-height: 1.1; margin: 0 0 10px; }
         #isi:has(.ml-header) .hero .st-main { display: block; }
         #isi:has(.ml-header) .hero .st-w.is-hl { 
