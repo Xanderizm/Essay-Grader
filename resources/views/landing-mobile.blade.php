@@ -15,7 +15,7 @@
         ['Langkah 6 &middot; Hasil', 'Grafik &amp; <mark>Unduh Excel</mark>', 'Lihat statistik performa siswa via chart visual dan unduh rekapitulasi nilai ke format Excel.',
             '<div class="ml-hw-row"><b>Rekap nilai kelas</b><span class="mono">.csv</span></div><span class="ml-hw-btn lime">Unduh Excel</span>'],
     ];
-    $mlCaps   = ['Microsoft Excel' => 'Export .csv', 'Akun Google' => 'OAuth langsung', 'Google Forms' => 'Mode edit link', 'Console groq API' => 'Ultra-cepat'];
+    $mlCaps   = ['Microsoft Excel' => 'Export .csv', 'Akun Google' => 'OAuth langsung', 'Google Forms' => 'Mode edit link', 'Console groq API' => 'Penyedia LLM'];
     $mlTone   = ['dk', 'lm', ''];
     $mlScore  = [88, 90, 85];
 @endphp
